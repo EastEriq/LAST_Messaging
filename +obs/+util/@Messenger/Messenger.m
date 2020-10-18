@@ -35,10 +35,14 @@ classdef Messenger < handle % not of class handle, if has to have a private call
             if exist('LocalPort','var')
                 Msng.LocalPort=LocalPort;
             else
-                if true % we should check here if Host resolves to localhost
-                    Msng.LocalPort=Msng.DestinationPort;
-                end
+                Msng.LocalPort=Msng.DestinationPort;
             end
+            if strcmp(resolvehost(Msng.DestinationHost,'address'),...
+                            resolvehost('localhost','address')) &&...
+               Msng.DestinationPort==Msng.LocalPort
+                 warning('using the same ports for messengers on the same host is not reccommended')
+            end
+
             if exist('Name','var')
                 Msng.Name=Name;
             else
@@ -70,10 +74,9 @@ classdef Messenger < handle % not of class handle, if has to have a private call
         
         function delete(Msng)
             %try
-            Msng.StreamResource
-                delete(Msng.StreamResource);
+                delete(Msng.StreamResource); % doesn't delete it? I still see it in instrfind
             %catch
-                % this cannot report in Msng.LastError
+                % this cannot be reported in Msng.LastError
             %end
         end
     end
