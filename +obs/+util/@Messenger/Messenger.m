@@ -1,4 +1,4 @@
-classdef Messenger <handle
+classdef Messenger < handle % not of class handle, if has to have a private callback
     
     properties
         DestinationHost='localhost'; % Destination host. Named or IP. localhost valid
@@ -10,6 +10,8 @@ classdef Messenger <handle
 
     properties (Hidden)
         StreamResource
+        LastError='';
+        verbose=true;
     end
     
     methods
@@ -39,6 +41,9 @@ classdef Messenger <handle
             end
             if exist('Name','var')
                 Msng.Name=Name;
+            else
+                Msng.Name=sprintf('%d->%s:%d',Msng.LocalPort,Msng.DestinationHost,...
+                           Msng.DestinationPort);       
             end
             % now create the corresponding udp object: first clean up
             %  leftovers,
@@ -54,7 +59,7 @@ classdef Messenger <handle
             % then create
             try
                 Msng.StreamResource=udp(Msng.DestinationHost,Msng.DestinationPort,...
-                    'LocalPort',Msng.DestinationPort,...
+                    'LocalPort',Msng.LocalPort,...
                     'EnablePortSharing','off',...
                     'Name',Msng.Name);
             catch
@@ -63,5 +68,13 @@ classdef Messenger <handle
             end           
         end
         
+        function delete(Msng)
+            %try
+            Msng.StreamResource
+                delete(Msng.StreamResource);
+            %catch
+                % this cannot report in Msng.LastError
+            %end
+        end
     end
 end

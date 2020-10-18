@@ -14,4 +14,5 @@ function success=connect(Msng)
     end
     
     % setup the receiver callback
+    Msng.StreamResource.DatagramReceivedFcn=@Msng.listener;
 end
