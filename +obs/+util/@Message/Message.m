@@ -2,8 +2,8 @@ classdef Message <handle
     
     properties
         From='';
-        ReplyTo='';
-        Destination='';
+        % ReplyTo='';
+        % Destination='';
         SentTimestamp=[];
         ReceivedTimestamp=[];
         ProgressiveNumber=-1;

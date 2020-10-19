@@ -16,13 +16,29 @@ function listener(Msng,Type,Data)
    % fill in some fields at reception
    M.From=[Data.Data.DatagramAddress ':' Data.Data.DatagramPort];
    M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
-   % try to execute the command (in which context? base?)
+   % try to execute the command. Could use evalc instead of eval to retrieve
+   %  eventual output in some way. output=eval() alone would error on
+   %  for instance assignments. OTOH, the screen output will have to be
+   %  parsed in order to get information out of it.
+   % And, there is the issue of in which context to evaluate, which forces
+   %  the use of evalin().
    try
-       output=eval(M.Command);
+       % this is an expensive way of dealing with one output or none
+       try
+           out=evalin('base',M.Command);
+       catch
+           evalin('base',M.Command);
+           out='';
+       end
        if M.RequestReply
            % send back a message with output in .Content and empty .Command
+           Msng.reply(jsonencode(out));
        end
    catch
        Msng.reportError('illegal command received');
+       if M.RequestReply
+           % send back a message with output in .Content and empty .Command
+           Msng.reply('Error!');
+       end
    end
 end
