@@ -4,9 +4,9 @@ classdef Message <handle
         From='';
         % ReplyTo='';
         % Destination='';
-        SentTimestamp=[];
-        ReceivedTimestamp=[];
-        ProgressiveNumber=-1;
+        SentTimestamp=[]; % time at which the message is sent, filled by the sending Messenger
+        ReceivedTimestamp=[]; % time at which the message is received, filled by the listeniner
+        ProgressiveNumber=[]; % ordinal number, set by the sending Messager
         Command='';
         RequestReply=false;
         Content={};
@@ -31,6 +31,7 @@ classdef Message <handle
                         Msg.Command=command;
                     end
                 else
+                    Msg.Content='Error: can''t convert argument into command';
                     %report that the type of the argument is wrong?
                 end
             end

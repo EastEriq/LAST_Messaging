@@ -10,12 +10,13 @@ function listener(Msng,Type,Data)
    Msng.report("received '" + cmd + "' from " + Data.Data.DatagramAddress + ':'+...
        num2str(Data.Data.DatagramPort) + " on " + datestr(Data.Data.AbsTime) +'\n')
    
-   % try to interpret cmd, which could be either a simple char string or
+   % Interpret cmd, which could be either a simple char string or
    %  a json cast of a cell, mappable onto a Message
    M=obs.util.Message(cmd);
    % fill in some fields at reception
    M.From=[Data.Data.DatagramAddress ':' Data.Data.DatagramPort];
    M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
+   
    % try to execute the command. Could use evalc instead of eval to retrieve
    %  eventual output in some way. output=eval() alone would error on
    %  for instance assignments. OTOH, the screen output will have to be

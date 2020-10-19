@@ -6,6 +6,8 @@ function reply(Msng,content)
     R.SentTimestamp=now;
     R.RequestReply=false;
     R.Content=content;
+    Msng.MessagesSent=Msng.MessagesSent+1;
+    R.ProgressiveNumber=Msng.MessagesSent;
 
     % flatten it and dispatch it
     fwrite(Msng.StreamResource,jsonencode(R));
