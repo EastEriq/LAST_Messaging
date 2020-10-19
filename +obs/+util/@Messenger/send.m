@@ -18,7 +18,7 @@ function send(Msng,command,requestReply)
     end
 
    % fill all the other fields of the message
-   M.From=resolvehost('localhost','address');
+   M.From=Msng.Name;
    M.SentTimestamp=now;
    M.RequestReply=requestReply;
    

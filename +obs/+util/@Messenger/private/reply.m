@@ -2,7 +2,7 @@ function reply(Msng,content)
 % helper method for replying to messages with either output from a command,
 %  or errors for illegal commands, or acknowledgements to AreYouThere
     R=obs.util.Message;
-    R.From=resolvehost('localhost','address');
+    R.From=Msng.Name;
     R.SentTimestamp=now;
     R.RequestReply=false;
     R.Content=content;

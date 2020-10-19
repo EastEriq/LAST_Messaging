@@ -47,8 +47,9 @@ classdef Messenger < handle % not of class handle, if has to have a private call
             if exist('Name','var')
                 Msng.Name=Name;
             else
-                Msng.Name=sprintf('%d->%s:%d',Msng.LocalPort,Msng.DestinationHost,...
-                           Msng.DestinationPort);       
+                Msng.Name=sprintf('%s:%d->%s:%d',resolvehost('localhost','name'),...
+                                  Msng.LocalPort,Msng.DestinationHost,...
+                                  Msng.DestinationPort);       
             end
             % now create the corresponding udp object: first clean up
             %  leftovers,
