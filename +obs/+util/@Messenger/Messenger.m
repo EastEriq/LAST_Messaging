@@ -12,11 +12,11 @@ classdef Messenger < handle % not of class handle, if has to have a private call
     properties (Hidden)
         StreamResource
         LastError='';
-        Verbose=true;
-        LastMessage
+        Verbose=true; % boolean, or numeric. 2 is more verbose than true
+        LastMessage % storing the last received message, to implement query responses
     end
     
-    methods
+    methods % creator and destructor (NonDestructor because of udp?)
         
         function Msng=Messenger(Host,DestinationPort,LocalPort,Name)
         % Messenger channel creator, with optional arguments
@@ -28,7 +28,7 @@ classdef Messenger < handle % not of class handle, if has to have a private call
         % LocalPort: (default 50000) must not be identical to
         %  DestinationPort, if host is localhost, i.e. if the messenger
         %  channel is between processes running on the same computer
-            if exist('host','var')
+            if exist('Host','var')
                 Msng.DestinationHost=Host;
             end
             if exist('DestinationPort','var')
@@ -85,5 +85,86 @@ classdef Messenger < handle % not of class handle, if has to have a private call
                 % this cannot be reported in Msng.LastError
             end
         end
+        
     end
+    
+    methods % setters and getters of properties which must be propagated to StreamResource
+        
+        function set.LocalPort(Msng,port)
+            try
+                Msng.StreamResource.LocalPort=port;
+                Msng.LocalPort=port;
+            catch
+                Msng.reportError('could not change LocalPort. Maybe connection is open?')
+            end
+        end
+        
+        function set.DestinationPort(Msng,port)
+            try
+                Msng.StreamResource.RemotePort=port;
+                Msng.DestinationPort=port;
+            catch
+                Msng.reportError('could not change DestinationPort. Maybe connection is open?')
+            end
+        end
+        
+        
+        function set.DestinationHost(Msng,host)
+            % seems that this can be changed even with udp opened
+            try
+                Msng.StreamResource.RemoteHost=host;
+                Msng.DestinationHost=host;
+            catch
+                Msng.reportError('could not change DestinationHost. Maybe connection is open?')
+            end
+        end
+        
+        function set.EnablePortSharing(Msng,state)
+            % accept state='on', 'off', true, false, 0, 1
+            if ischar(state)
+                if ~strcmp(state,'on') && ~strcmp(state,'off')
+                    Msng.reportError('invalid EnablePortSharing. Should be ''on'' or ''off''')
+                end
+            elseif islogical(state) || isa(state,'numeric')
+                if state
+                    state='on';
+                else
+                    state='off';
+                end
+            else
+            end
+            try
+                Msng.StreamResource.EnablePortSharing=state;
+                Msng.EnablePortSharing=state;
+            catch
+                Msng.reportError('could not change EnablePortSharing. Maybe connection is open?')
+            end
+        end
+
+        % getters directly from StreamResource, not to lose sync with it:
+        %  would be a good idea, but we have a problem at creation, because
+        %  StreamResource is created last. try-catch those cases
+        function port=get.LocalPort(Msng)
+            port=Msng.StreamResource.LocalPort;
+        end
+        
+        function port=get.DestinationPort(Msng)
+            port=Msng.StreamResource.RemotePort;
+        end
+        
+        
+        function host=get.DestinationHost(Msng)
+            try
+                host=Msng.StreamResource.RemoteHost;
+            catch
+                host=Msng.DestinationHost;
+            end
+        end
+        
+        function state=get.EnablePortSharing(Msng)
+            state=Msng.StreamResource.EnablePortSharing;
+        end
+
+    end
+    
 end

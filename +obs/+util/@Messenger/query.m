@@ -5,7 +5,7 @@ function resp=query(Msng,command)
   
   % poll for an incoming reply within a timeout
   started=now;
-  while isempty(Msng.LastMessage) && (now-started)<Msng.StreamResource.Timeout
+  while isempty(Msng.LastMessage) && (now-started)<Msng.StreamResource.Timeout/3600/24
       pause(0.01)
   end
   

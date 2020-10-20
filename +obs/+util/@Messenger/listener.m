@@ -7,8 +7,12 @@ function listener(Msng,~,Data)
 % which IIUC evaluates it in the base workspace
    stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes
    % diagnostic echo
-   Msng.report("received '" + stream + "' from " + Data.Data.DatagramAddress + ':'+...
-       num2str(Data.Data.DatagramPort) + " on " + datestr(Data.Data.AbsTime) +'\n')
+   if Msng.Verbose==2 % in truth so far I said that Verbose is a boolean
+       Msng.report("received '" + stream + "' from " + ...
+                    Data.Data.DatagramAddress + ':'+...
+                    num2str(Data.Data.DatagramPort) + " on " +...
+                    datestr(Data.Data.AbsTime) +'\n')
+   end
    
    % Interpret cmd, which could be either a simple char string or
    %  a json cast of a cell, mappable onto a Message
