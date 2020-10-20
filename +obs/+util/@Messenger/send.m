@@ -24,6 +24,7 @@ function send(Msng,command,requestReply)
    
    Msng.MessagesSent=Msng.MessagesSent+1;
    M.ProgressiveNumber=Msng.MessagesSent;
-
+   
    % flatten it and dispatch it
-   fwrite(Msng.StreamResource,jsonencode(M));
+   flat=jsonTruncate(Msng,M);
+   fwrite(Msng.StreamResource,flat);
