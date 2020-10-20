@@ -6,7 +6,7 @@ classdef Message <handle
         % Destination='';
         SentTimestamp=[]; % time at which the message is sent, filled by the sending Messenger
         ReceivedTimestamp=[]; % time at which the message is received, filled by the listeniner
-        ProgressiveNumber=[]; % ordinal number, set by the sending Messager
+        ProgressiveNumber=[]; % ordinal number, set by the sending Messenger
         Command='';
         RequestReply=false;
         Content={};

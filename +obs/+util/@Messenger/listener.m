@@ -14,8 +14,7 @@ function listener(Msng,~,Data)
                     datestr(Data.Data.AbsTime) +'\n')
    end
    
-   % Interpret cmd, which could be either a simple char string or
-   %  a json cast of a cell, mappable onto a Message
+   % reconstruct the incoming Message
    M=obs.util.Message(stream);
    % fill in some fields at reception
    M.From=[Data.Data.DatagramAddress ':' num2str(Data.Data.DatagramPort)];
@@ -25,16 +24,16 @@ function listener(Msng,~,Data)
    %  E.g. to check for a reply to a query
    Msng.LastMessage=M;
    
-   % try to execute the command. Could use evalc instead of eval to retrieve
-   %  eventual output in some way. output=eval() alone would error on
-   %  for instance assignments. OTOH, the screen output will have to be
+   % try to execute the command. Could use evalc() instead of eval to retrieve
+   %  an eventual output in some way. Out=eval() alone would error on
+   %  for instance assignments. OTOH, with evalc() the screen output will have to be
    %  parsed in order to get information out of it.
-   % And, there is the issue of in which context to evaluate, which forces
-   %  the use of evalin().
+   % And, there is the issue of in which context to evaluate, which ultimately 
+   %  forces the use of evalin().
    try
        out='';
        if ~isempty(M.Command)
-           % this is an expensive way of dealing with one output or none
+           % this is an expensive way of dealing with either one output or none
            try
                out=evalin('base',M.Command);
            catch
@@ -48,7 +47,7 @@ function listener(Msng,~,Data)
    catch
        Msng.reportError('illegal command received');
        if M.RequestReply
-           % send back a message with output in .Content and empty .Command
+           % send back a message with Error! in .Content and empty .Command
            Msng.reply('Error!');
        end
    end
