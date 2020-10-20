@@ -17,6 +17,10 @@ function listener(Msng,~,Data)
    M.From=[Data.Data.DatagramAddress ':' Data.Data.DatagramPort];
    M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
    
+   % Store the message received, so that the process can access it.
+   %  E.g. to check for a reply to a query
+   Msng.LastMessage=M;
+   
    % try to execute the command. Could use evalc instead of eval to retrieve
    %  eventual output in some way. output=eval() alone would error on
    %  for instance assignments. OTOH, the screen output will have to be

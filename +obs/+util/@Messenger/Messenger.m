@@ -5,14 +5,15 @@ classdef Messenger < handle % not of class handle, if has to have a private call
         DestinationPort=50001; % Port on the destination host
         LocalPort=50000; % port on the local host. Can be same as DestinationPort if Destination hot is not localhost
         EnablePortSharing='off'; % if 'on', different processses on the same localhost can receive on the same port
-        Name
+        Name % free text, useful for labelling the Messenger fuunction
         MessagesSent=0; % incrementing number of messages sent
     end
 
     properties (Hidden)
         StreamResource
         LastError='';
-        verbose=true;
+        Verbose=true;
+        LastMessage
     end
     
     methods
@@ -75,11 +76,14 @@ classdef Messenger < handle % not of class handle, if has to have a private call
         end
         
         function delete(Msng)
-            %try
+            % this is not called when clearing the object? Probably it is a
+            % NonDestructor, because it calls subproperties of .StreamResource
+            try
+                Msng.disconnect;
                 delete(Msng.StreamResource); % doesn't delete it? I still see it in instrfind
-            %catch
+            catch
                 % this cannot be reported in Msng.LastError
-            %end
+            end
         end
     end
 end

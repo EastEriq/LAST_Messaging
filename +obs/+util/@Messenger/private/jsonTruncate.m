@@ -6,13 +6,13 @@ function shortflat=jsonTruncate(Msng,M)
     if length(flat)>Msng.StreamResource.OutputBufferSize
         Msng.reportError(sprintf(['reply message too long (%d characters), truncating' ...
             ' (perhaps increase OutputBufferSize)'],length(flat)));
-        % truncate the json string - this won't be interpreted by the
-        % destination listener, which will say 'illegal command received'.
-        % A more sophysticated solution could be to replace offending long
-        %  fields with shorter labels, such as .Command with a command like
-        % 'error('received truncated datagram') which outputs a more specific message
-        % at the destination side
-        shortflat=flat(1:Msng.StreamResource.OutputBufferSize);
+        % shorten the json string, by nulling .Command and assigning a
+        %  short string to .Content - not an universal solution (e.g.
+        %  doesn't shorten unreasonably long names) but reasonable for the
+        %  time being
+        M.Command='';
+        M.Content=jsonencode('truncated...');
+        shortflat=jsonencode(M);
     else
         shortflat=flat;
     end
