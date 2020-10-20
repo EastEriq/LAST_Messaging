@@ -1,18 +1,18 @@
-function listener(Msng,Type,Data)
+function listener(Msng,~,Data)
 % This function is set as callback when a full udp datagram is received
 %  It reads the datagram, interprets as command string, and evaluates it
 %
 % this function could logically be a private method of the Messenger class,
 % but that seems not to sit well with the instrument callback mechanism,
 % which IIUC evaluates it in the base workspace
-   cmd=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes
+   stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes
    % diagnostic echo
-   Msng.report("received '" + cmd + "' from " + Data.Data.DatagramAddress + ':'+...
+   Msng.report("received '" + stream + "' from " + Data.Data.DatagramAddress + ':'+...
        num2str(Data.Data.DatagramPort) + " on " + datestr(Data.Data.AbsTime) +'\n')
    
    % Interpret cmd, which could be either a simple char string or
    %  a json cast of a cell, mappable onto a Message
-   M=obs.util.Message(cmd);
+   M=obs.util.Message(stream);
    % fill in some fields at reception
    M.From=[Data.Data.DatagramAddress ':' Data.Data.DatagramPort];
    M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
@@ -24,12 +24,14 @@ function listener(Msng,Type,Data)
    % And, there is the issue of in which context to evaluate, which forces
    %  the use of evalin().
    try
-       % this is an expensive way of dealing with one output or none
-       try
-           out=evalin('base',M.Command);
-       catch
-           evalin('base',M.Command);
-           out='';
+       out='';
+       if ~isempty(M.Command)
+           % this is an expensive way of dealing with one output or none
+           try
+               out=evalin('base',M.Command);
+           catch
+               evalin('base',M.Command);
+           end
        end
        if M.RequestReply
            % send back a message with output in .Content and empty .Command
