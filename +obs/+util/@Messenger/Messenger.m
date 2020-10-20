@@ -141,6 +141,16 @@ classdef Messenger < handle % not of class handle, if has to have a private call
             end
         end
 
+        function set.Name(Msng,name)
+            % seems that this can be changed with udp opened
+            try
+                Msng.StreamResource.Name=name;
+                Msng.Name=name;
+            catch
+                Msng.reportError('could not change Name')
+            end
+        end
+
         % getters directly from StreamResource, not to lose sync with it:
         %  would be a good idea, but we have a problem at creation, because
         %  StreamResource is created last. try-catch those cases
@@ -151,8 +161,7 @@ classdef Messenger < handle % not of class handle, if has to have a private call
         function port=get.DestinationPort(Msng)
             port=Msng.StreamResource.RemotePort;
         end
-        
-        
+
         function host=get.DestinationHost(Msng)
             try
                 host=Msng.StreamResource.RemoteHost;
@@ -163,6 +172,10 @@ classdef Messenger < handle % not of class handle, if has to have a private call
         
         function state=get.EnablePortSharing(Msng)
             state=Msng.StreamResource.EnablePortSharing;
+        end
+        
+        function name=get.Name(Msng)
+            name=Msng.StreamResource.Name;
         end
 
     end
