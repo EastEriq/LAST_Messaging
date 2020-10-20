@@ -18,7 +18,7 @@ function listener(Msng,~,Data)
    %  a json cast of a cell, mappable onto a Message
    M=obs.util.Message(stream);
    % fill in some fields at reception
-   M.From=[Data.Data.DatagramAddress ':' Data.Data.DatagramPort];
+   M.From=[Data.Data.DatagramAddress ':' num2str(Data.Data.DatagramPort)];
    M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
    
    % Store the message received, so that the process can access it.
