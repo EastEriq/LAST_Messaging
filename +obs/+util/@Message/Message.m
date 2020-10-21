@@ -10,6 +10,7 @@ classdef Message <handle
         Command='';
         RequestReply=false;
         Content={};
+        EvalInListener=false; % use true for the special case of retreiving properties of the receiving Messenger
     end
     
     methods

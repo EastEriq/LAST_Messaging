@@ -1,11 +1,17 @@
-function send(Msng,command,requestReply)
+function send(Msng,command,requestReply,evalInListener)
 % send a message through the Messenger channel
 % 
 % command: a string, containing a Matlab command, or
 %          a Message object, containing all fields.
-% reply: boolean, if a reply is demanded (default true if omitted)
-    if ~exist('reply','var')
+% requestReply: boolean, if a reply is demanded (default true if omitted)
+% evalInListener: boolean, true for the special case of queries about the
+%                 Receiver (default false if omitted)
+    if ~exist('requestReply','var')
         requestReply=true;
+    end
+
+    if ~exist('evalInListener','var')
+        evalInListener=false;
     end
 
     if ischar(command)
@@ -21,6 +27,7 @@ function send(Msng,command,requestReply)
    M.From=Msng.Name;
    M.SentTimestamp=now;
    M.RequestReply=requestReply;
+   M.EvalInListener=evalInListener;
    
    Msng.MessagesSent=Msng.MessagesSent+1;
    M.ProgressiveNumber=Msng.MessagesSent;

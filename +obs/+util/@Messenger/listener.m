@@ -5,7 +5,7 @@ function listener(Msng,~,Data)
 % this function could logically be a private method of the Messenger class,
 % but that seems not to sit well with the instrument callback mechanism,
 % which IIUC evaluates it in the base workspace
-   stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes
+   stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes, fgetl no
    % diagnostic echo
    if Msng.Verbose==2 % in truth so far I said that Verbose is a boolean
        Msng.report("received '" + stream + "' from " + ...
@@ -35,10 +35,18 @@ function listener(Msng,~,Data)
        if ~isempty(M.Command)
            % this is an expensive way of dealing with either one output or none
            try
-               out=evalin('base',M.Command);
+               if M.EvalInListener
+                   out=eval(M.Command);
+               else
+                   out=evalin('base',M.Command);
+               end
            catch
-               evalin('base',M.Command);
-           end
+               if M.EvalInListener
+                   eval(M.Command);
+               else
+                   evalin('base',M.Command);
+               end
+            end
        end
        if M.RequestReply
            % send back a message with output in .Content and empty .Command
