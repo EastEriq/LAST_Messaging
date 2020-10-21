@@ -56,7 +56,7 @@ function listener(Msng,~,Data)
        Msng.reportError('illegal command received');
        if M.RequestReply
            % send back a message with Error! in .Content and empty .Command
-           Msng.reply('Error!');
+           Msng.reply('"Error!"'); % double quotes for json
        end
    end
 end
