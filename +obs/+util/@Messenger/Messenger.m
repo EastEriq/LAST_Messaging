@@ -1,4 +1,4 @@
-classdef Messenger < handle % not of class handle, if has to have a private callback
+classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a private callback
     
     properties
         DestinationHost='localhost'; % Destination host. Named or IP. localhost valid
@@ -14,6 +14,7 @@ classdef Messenger < handle % not of class handle, if has to have a private call
         LastError='';
         Verbose=true; % boolean, or numeric. 2 is more verbose than true
         LastMessage % storing the last received message, to implement query responses
+        CallbackRespond=true; % a listener callback processes incoming commands. If false, incoming data must be explicitely read!
     end
     
     methods % creator and destructor (NonDestructor because of udp?)
@@ -176,6 +177,15 @@ classdef Messenger < handle % not of class handle, if has to have a private call
         
         function name=get.Name(Msng)
             name=Msng.StreamResource.Name;
+        end
+        
+        function set.CallbackRespond(Msng,flag)
+            if flag
+                Msng.StreamResource.DatagramReceivedFcn=@Msng.listener;
+            else
+                Msng.StreamResource.DatagramReceivedFcn='';
+            end
+            Msng.CallbackRespond=flag;
         end
 
     end

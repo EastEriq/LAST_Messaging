@@ -16,7 +16,7 @@ M1.whoIsThere  % this works as expected
 collector=timer('Name','ImageCollector',...
     'ExecutionMode','SingleShot','BusyMode','Queue',...
     'StartDelay',1,...
-    'TimerFcn',@(~,~)M1.whoIsThere);
+    'TimerFcn','M1.whoIsThere');
 %    'StopFcn',@(mTimer,~)delete(mTimer));
 start(collector)
 
@@ -41,3 +41,6 @@ start(collector)
 pause(1)
 stream=char(fread(M1.StreamResource)')
 
+% The way to make it work could be to renounce to the listener callback
+M1.CallbackRespond=false;
+start(collector)

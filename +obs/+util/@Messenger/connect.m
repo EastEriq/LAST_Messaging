@@ -13,6 +13,7 @@ function success=connect(Msng)
                          num2str(Msng.DestinationPort) ' cannot be opened'];
     end
     
-    % setup the receiver callback
-    Msng.StreamResource.DatagramReceivedFcn=@Msng.listener;
+    % setup the receiver callback, if so required
+    Msng.CallbackRespond=Msng.CallbackRespond;
+
 end

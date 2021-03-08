@@ -7,7 +7,7 @@ function listener(Msng,~,Data)
 % which IIUC evaluates it in the base workspace
    stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes, fgetl no
    % diagnostic echo
-   if Msng.Verbose==2 % in truth so far I said that Verbose is a boolean
+   if Msng.Verbose==2 && nargin==3 % in truth so far I said that Verbose is a boolean
        Msng.report("received '" + stream + "' from " + ...
                     Data.Data.DatagramAddress + ':'+...
                     num2str(Data.Data.DatagramPort) + " on " +...
@@ -17,8 +17,10 @@ function listener(Msng,~,Data)
    % reconstruct the incoming Message
    M=obs.util.Message(stream);
    % fill in some fields at reception
-   M.From=[Data.Data.DatagramAddress ':' num2str(Data.Data.DatagramPort)];
-   M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
+   if nargin==3
+       M.From=[Data.Data.DatagramAddress ':' num2str(Data.Data.DatagramPort)];
+       M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
+   end
    
    % Store the message received, so that the process can access it.
    %  E.g. to check for a reply to a query
