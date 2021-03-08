@@ -59,7 +59,17 @@ A matlab session can have several Messenger objects instantiated, to provide sep
 * **Verbose:** boolean or numeric, for blabber. 2 is higher than true
 * **LastError:** string reporting the last error appeared, or empty if none
 * **LastMessage:** copy of the last message received. in order to implement a query mechanism
-* **StreamResource:** the native udp object of Matlab
+* **StreamResource:** the native udp object of Matlab.In some circumstances some properties of
+   it need to be accessed. E.g., **.StreamResource.OutputBufferSize**, **.StreamResource.Timeout**
+* **CallbackRespond:** if true, the listener() method (see below) is fired automatically then the
+  receiving buffer gets a terminator character. With that, the messenger immediately interprets
+  and processes incoming commands. If false, this does not happen; to process the commands,
+  listener() must be called explicitly. The reason for this is that Matlab does not allow nested
+  callbacks. If a messenger query would be inserted in a callback function (e.g. that of a timer),
+  the query would time out because the datagram event would be processed only after the first callback call.
+  Implementing this property, it is possible to devise a query() method which does not require further callbacks.
+  However, keep in mind that a Messenger with this property set to false will not automatically respond to
+  incoming commands. 
 
 ####Methods, public:
 

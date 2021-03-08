@@ -5,7 +5,7 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
         DestinationPort=50001; % Port on the destination host
         LocalPort=50000; % port on the local host. Can be same as DestinationPort if Destination hot is not localhost
         EnablePortSharing='off'; % if 'on', different processses on the same localhost can receive on the same port
-        Name % free text, useful for labelling the Messenger fuunction
+        Name % free text, useful for labelling the Messenger object
         MessagesSent=0; % incrementing number of messages sent
     end
 
