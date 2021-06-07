@@ -11,8 +11,6 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
 
     properties (Hidden)
         StreamResource
-        LastError='';
-        Verbose=true; % boolean, or numeric. 2 is more verbose than true
         LastMessage % storing the last received message, to implement query responses
         CallbackRespond=true; % a listener callback processes incoming commands. If false, incoming data must be explicitely read!
     end
