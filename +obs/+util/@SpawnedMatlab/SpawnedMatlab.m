@@ -1,12 +1,12 @@
 classdef SpawnedMatlab < obs.LAST_Handle
-    % Spawned matlab sessions objects, including messengers for dual
+    % Spawned matlab sessions object, including messengers for dual
     % communication
 
     properties (SetAccess=private)
-        Host
-        PID
-        Listener
-        RemoteUser='physics';
+        Host  % the host on which to spawn a new matlab session
+        PID   % process id of the new matlab session
+        Messenger % the messenger for exchanging commands betwen the master and the slave
+        RemoteUser='physics'; % username for connecting to a remote host
     end
 
     methods
@@ -67,36 +67,36 @@ classdef SpawnedMatlab < obs.LAST_Handle
             end
 
             % create a listener messenger
-            S.Listener=obs.util.Messenger(host,remoteport,localport);
+            S.Messenger=obs.util.Messenger(host,remoteport,localport);
             % live dangerously: connect the local messenger, pass to base the copy
-            S.Listener.connect; % can fail if the local port is busy
+            S.Messenger.connect; % can fail if the local port is busy
 
-            v=S.Listener.Verbose;
-            S.Listener.Verbose=false;
+            v=S.Messenger.Verbose;
+            S.Messenger.Verbose=false;
             retries=3; i=0;
-            while ~S.Listener.areYouThere && i<retries
+            while ~S.Messenger.areYouThere && i<retries
                 % retry enough times for the spawned session to be ready, tune it
                 %  according to slowness of startup and timeout of the
                 %  listener
                 i=i+1;
             end
-            S.Listener.Verbose=v;
-            S.PID=S.Listener.query('feature(''getpid'')');
+            S.Messenger.Verbose=v;
+            S.PID=S.Messenger.query('feature(''getpid'')');
         end
 
         % destructor
         function delete(S)
             % try to quit gracefully the spawned session (if it responds normally)
-            if ~isempty(S.Listener)
+            if ~isempty(S.Messenger)
                 % conditional, to work also for incomplete objects
-                S.Listener.send('exit')
+                S.Messenger.send('exit')
                 % if this times out, kill
-                if ~isempty(S.Listener.LastError)
+                if ~isempty(S.Messenger.LastError)
                     S.report('graceful exit of slave session timed out, attempting to kill')
                     S.kill
                 end
-                S.Listener.disconnect
-                delete(S.Listener)
+                S.Messenger.disconnect
+                delete(S.Messenger)
             end
         end
 
