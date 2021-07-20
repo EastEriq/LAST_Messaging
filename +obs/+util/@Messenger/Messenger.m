@@ -77,10 +77,20 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
         function delete(Msng)
             % this is not called when clearing the object? Probably it is a
             % NonDestructor, because it calls subproperties of .StreamResource
+            % Thus:
+            % M=obs.util.messenger(....); M.connect; M.disconnect; clear M
+            %   and
+            % M=obs.util.messenger(....); M.connect; delete(M)
+            %   correctly delete the udp resource (which disappears from instrfind), but
+            % M=obs.util.messenger(....); M.connect; clear M
+            %    not. Why?
+            % Moreover, delete(instrfind) in the latter case enters this
+            %  destructor, which is odd.
             try
                 Msng.disconnect;
                 delete(Msng.StreamResource); % doesn't delete it? I still see it in instrfind
             catch
+                Msng.reportError('cannot delete the associated udp resource')
                 % this cannot be reported in Msng.LastError
             end
         end
