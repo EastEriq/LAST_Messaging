@@ -35,6 +35,7 @@ function resp=query(Msng,command,evalInListener)
     
     if ~isempty(Msng.LastMessage)
         resp=jsondecode(Msng.LastMessage.Content);
+        Msng.LastError='';
     else
         Msng.reportError('Timeout while waiting for a reply message')
         resp=[];

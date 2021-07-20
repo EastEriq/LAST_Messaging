@@ -32,11 +32,13 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
             end
             if exist('DestinationPort','var')
                 Msng.DestinationPort=DestinationPort;
+            else
+                Msng.DestinationPort=50001;
             end
             if exist('LocalPort','var')
                 Msng.LocalPort=LocalPort;
             else
-                Msng.LocalPort=Msng.DestinationPort;
+                Msng.LocalPort=50000;
             end
             if strcmp(resolvehost(Msng.DestinationHost,'address'),...
                             resolvehost('localhost','address')) &&...
