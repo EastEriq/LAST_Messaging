@@ -29,15 +29,9 @@ classdef SpawnedMatlab < obs.LAST_Handle
 
         % destructor
         function delete(S)
-            % try to quit gracefully the spawned session (if it responds normally)
             if ~isempty(S.Messenger)
                 % conditional, to work also for incomplete objects
-                S.Messenger.send('exit')
-                % if this times out, kill
-                if ~isempty(S.Messenger.LastError)
-                    S.report('graceful exit of slave session timed out, attempting to kill')
-                    S.kill
-                end
+                S.disconnect
                 S.Messenger.disconnect
                 delete(S.Messenger)
             end
