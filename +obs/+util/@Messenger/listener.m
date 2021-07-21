@@ -55,7 +55,7 @@ function listener(Msng,~,Data)
            Msng.reply(jsonencode(out));
        end
    catch
-       Msng.reportError('illegal command received');
+       Msng.reportError(sprintf('illegal command "%s" received',M.Command));
        if M.RequestReply
            % send back a message with Error! in .Content and empty .Command
            Msng.reply('"Error!"'); % double quotes for json
