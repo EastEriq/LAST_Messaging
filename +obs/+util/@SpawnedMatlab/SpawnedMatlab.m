@@ -9,6 +9,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
     end
 
     properties (SetAccess=private)
+        Status='disconnected'; % 'disconnected' | 'alive' | 'dead' | 'notresponding'
         PID   % process id of the new matlab session
         Messenger % the messenger for exchanging commands betwen the master and the slave
         RemoteUser='physics'; % username for connecting to a remote host
@@ -34,6 +35,29 @@ classdef SpawnedMatlab < obs.LAST_Handle
                 S.disconnect
                 S.Messenger.disconnect
                 delete(S.Messenger)
+            end
+        end
+
+        % getter for Status
+        function s=get.Status(S)
+            if isempty(S.PID)
+                s='disconnected';
+            else
+                if S.Messenger.areYouThere
+                    s='alive';
+                else
+                    s='notresponding';
+                    %  if process doesn't exist anymore, then it the slave is dead
+                    pingcommand=['pidof MATLAB | grep ^' num2str(S.PID)];          
+                    if ~strcmp(S.Host,'localhost')
+                        % TODO: check that it really works like this
+                        pingcommand=['ssh ' S.RemoteUser '@' S.Host ' ' pingcommand];
+                    end
+                    if system(pingcommand)
+                        % system() returns 1 if grep errors, i.e. no PID
+                        s='dead';
+                    end
+                end
             end
         end
 

@@ -5,6 +5,11 @@
             %  and to RemoteUser for any other hostname (including the same
             %  machine by IP or by resolved name)
             
+            if ~isempty(S.PID)
+                S.reportError('PID already exists, probably the slave is already connected')
+                return
+            end
+            
             if exist('host','var')
                 S.Host=host;
             elseif isempty(S.Host)
@@ -52,7 +57,7 @@
                 % cfr: http://rebol.com/docs/ssh-auto-login.html
                 %      https://serverfault.com/questions/241588/how-to-automate-ssh-login-with-password
                 spawncommand='matlab -nosplash -nodesktop -r ';
-                success= (system(['ssh ' S.RemoteUser '@' S.Host ' ' ...
+                success= (system(['ssh -X ' S.RemoteUser '@' S.Host ' ' ...
                                   spawncommand '"' messengercommand '"&'])==0);
             end
             if ~success

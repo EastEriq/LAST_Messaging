@@ -5,6 +5,8 @@ function kill(S)
         system(['kill -9 ' num2str(S.PID)])
     else
         % try with ssh - TODO
-    %    system(['ssh ' S.RemoteUser '@' S.Host ' kill -9 ' num2str(S.PID)])
+        system(['ssh ' S.RemoteUser '@' S.Host ' kill -9 ' num2str(S.PID)])
     end
+    S.PID=[];
+    S.Status='disconnected';
 end
