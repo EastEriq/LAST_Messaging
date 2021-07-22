@@ -92,8 +92,10 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
                 Msng.disconnect;
                 delete(Msng.StreamResource); % doesn't delete it? I still see it in instrfind
             catch
-                Msng.reportError('cannot delete the associated udp resource')
-                % this cannot be reported in Msng.LastError
+                Msng.reportError('cannot delete the Messenger udp resource')
+                % this cannot be reported in Msng.LastError, nor the error
+                %  can contain more identifying information, because the
+                %  object is not anymore
             end
         end
         

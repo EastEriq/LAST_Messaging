@@ -63,9 +63,13 @@
             S.Messenger=obs.util.Messenger(S.Host,S.RemotePort,S.LocalPort);
             S.Messenger.connect; % can fail if the local port is busy
 
+            % save the current verbose and timeout values, and temporarily
+            %  set a shorter timeout
             v=S.Messenger.Verbose;
+            t=S.Messenger.StreamResource.Timeout;
             S.Messenger.Verbose=false;
-            retries=3; i=0;
+            S.Messenger.StreamResource.Timeout=1;
+            retries=15; i=0;
             while ~S.Messenger.areYouThere && i<retries
                 % retry enough times for the spawned session to be ready, tune it
                 %  according to slowness of startup and timeout of the
@@ -74,4 +78,5 @@
             end
             S.Messenger.Verbose=v;
             S.PID=S.Messenger.query('feature(''getpid'')');
+            S.Messenger.StreamResource.Timeout=t;
         end
