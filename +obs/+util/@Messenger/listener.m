@@ -51,8 +51,8 @@ function listener(Msng,~,Data)
             end
        end
    catch
-       Msng.reportError(sprintf('illegal command "%s" received by messenger %s',...
-                                M.Command,M.Name));
+       Msng.reportError(sprintf('illegal messenger command "%s" received from %s',...
+                                M.Command,M.From));
    end
    try
        if M.RequestReply
