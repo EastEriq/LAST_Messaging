@@ -57,7 +57,7 @@ function listener(Msng,~,Data)
    try
        if M.RequestReply
            % send back a message with output in .Content and empty .Command
-           Msng.reply(jsonencode(out));
+           Msng.reply(jsonencode(out,'ConvertInfAndNaN',false));
        end
    catch
        Msng.reportError(sprintf('problem encoding in json the result of command "%s"',...
