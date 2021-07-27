@@ -11,6 +11,11 @@ function resp=query(Msng,command,evalInListener)
 
     Msng.LastMessage=[];
     send(Msng,command,true,evalInListener);
+
+    if ~isempty(Msng.LastError)
+        % if send() was problematic, don't expect a reply
+        return
+    end
     
     % poll for an incoming reply within a timeout
     started=now;

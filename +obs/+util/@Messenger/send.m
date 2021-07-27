@@ -33,5 +33,10 @@ function send(Msng,command,requestReply,evalInListener)
    M.ProgressiveNumber=Msng.MessagesSent;
    
    % flatten it and dispatch it
-   flat=jsonTruncate(Msng,M);
-   fwrite(Msng.StreamResource,flat);
+   try
+       flat=jsonTruncate(Msng,M);
+       fwrite(Msng.StreamResource,flat);
+       Msng.LastError='';
+   catch
+       Msng.reportError('message datagram could not be written to udp resource')
+   end
