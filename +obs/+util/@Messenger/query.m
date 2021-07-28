@@ -31,7 +31,7 @@ function resp=query(Msng,command,evalInListener)
             %  StreamResource is accessible from any context....
             nbytes=Msng.StreamResource.BytesAvailable;
             if nbytes==nbytes1 && nbytes>0
-                Msng.listener()
+                Msng.datagramParser()
             end
             nbytes1=nbytes;
         end

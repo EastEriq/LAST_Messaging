@@ -1,4 +1,4 @@
-function listener(Msng,~,Data)
+function datagramParser(Msng,~,Data)
 % This function is set as callback when a full udp datagram is received
 %  It reads the datagram, interprets as command string, and evaluates it
 %

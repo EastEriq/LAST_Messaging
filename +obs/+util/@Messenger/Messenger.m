@@ -12,7 +12,7 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
     properties (Hidden)
         StreamResource
         LastMessage % storing the last received message, to implement query responses
-        CallbackRespond=true; % a listener callback processes incoming commands. If false, incoming data must be explicitely read!
+        CallbackRespond=true; % the datagramParser callback processes incoming commands. If false, incoming data must be explicitely read!
     end
     
     methods % creator and destructor (NonDestructor because of udp?)
@@ -195,7 +195,7 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
         
         function set.CallbackRespond(Msng,flag)
             if flag
-                Msng.StreamResource.DatagramReceivedFcn=@Msng.listener;
+                Msng.StreamResource.DatagramReceivedFcn=@Msng.datagramParser;
             else
                 Msng.StreamResource.DatagramReceivedFcn='';
             end
