@@ -17,15 +17,25 @@ function resp=query(Msng,command,evalInListener)
         return
     end
     
+    % analyze the call chain and find out if we're in a callback. The code
+    %  makes sense, but probably we're never really in this case, even in
+    %  roundtrips. Why?
+    ds=dbstack;
+    callchain=ds.name;
+    calledFromCallback = any(contains(callchain,{'timercb','instrcb'}));
+    
     % poll for an incoming reply within a timeout
     started=now;
     nbytes1=0;
     while isempty(Msng.LastMessage) && (now-started)<Msng.StreamResource.Timeout/3600/24
-        if Msng.CallbackRespond
+        if Msng.CallbackRespond && ~calledFromCallback
             % the listener callback fills the content automatically, when
             %  the stream is completed by a terminator
         else
-            % let's check for incoming bytes. When the count stops
+            % If we can't rely on the automatic callback (for instance
+            %  because query is already called by a non interuptible
+            %  callback, like that of a timer or a notify, let's sit here
+            %  and check for incoming bytes (blocking). When the count stops
             %  increasing, call explicitely the listener function, which
             %  fills Msng.LastMessage. We can do that because the i/o
             %  StreamResource is accessible from any context....
