@@ -4,7 +4,7 @@ function disconnect(S)
     % if this times out, kill
     if ~isempty(S.Messenger.LastError)
         S.report(['graceful exit of slave session ' S.Id ...
-            'timed out, attempting to kill\n'])
+                  ' timed out, attempting to kill\n'])
         S.kill
     end
     S.PID=[];

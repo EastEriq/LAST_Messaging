@@ -4,12 +4,14 @@
             % The process belongs to the current user if host='localhost',
             %  and to RemoteUser for any other hostname (including the same
             %  machine by IP or by resolved name)
-            
+
+            localdesktop=false;
+
             if ~isempty(S.PID)
                 S.reportError('PID already exists, probably the slave is already connected')
                 return
             end
-            
+
             if exist('host','var')
                 S.Host=host;
             elseif isempty(S.Host)
@@ -28,12 +30,17 @@
                 S.RemotePort=8002;
             end
             
+            % use xterm or gnome-terminal depending on which is
+            %  installed sanely
+            spawncommand='xterm -e matlab -nosplash -nodesktop -r  ';
+            % spawncommand='gnome-terminal -- matlab -nosplash -nodesktop -r ';
+
             % additional matlab commands if we want to rise the java frame:
             %  close the editor window, change title, ...
             desktopcommand = ['closeNoPrompt(matlab.desktop.editor.getAll); ', ...
                 'jDesktop = com.mathworks.mde.desk.MLDesktop.getInstance; ', ...
                 sprintf('jDesktop.getMainFrame.setTitle(''spawn %d->%d''); ',...
-                S.RemotePort,S.LocalPort)];
+                S.RemotePort,S.LocalPort), 'clear jDesktop;'];
 
             messengercommand = sprintf(['MasterMessenger=obs.util.Messenger(''%s'',%d,%d);'...
                 'MasterMessenger.connect;'],...
@@ -46,19 +53,30 @@
             
             % TODO: the proper startup.m should be global
             if strcmp(S.Host,'localhost')
-                %    spawncommand='matlab -nosplash -desktop -r ';
-                %    success= (system([spawncommand '"' desktopcommand messengercommand '"&'])==0);
-                spawncommand='gnome-terminal -- matlab -nosplash -nodesktop -r ';
-                success= (system([spawncommand '"' messengercommand '"&'])==0);
+                if localdesktop
+                    spawncommand='matlab -nosplash -desktop -r ';
+                    success= (system([spawncommand '"' desktopcommand messengercommand '"&'])==0);
+                else
+                    % spawncommand='xterm -e "matlab -nosplash -nodesktop -r ';
+                    success= (system([spawncommand '"' messengercommand '" &'])==0);
+                end
             else
-                % could use rsh (ssh) (but if we want to open a window on a display,
-                %   more complicate) (ssh -X perhaps for local display).
                 % Needs also a some mechanism of auto login. TODO.
                 % cfr: http://rebol.com/docs/ssh-auto-login.html
                 %      https://serverfault.com/questions/241588/how-to-automate-ssh-login-with-password
-                spawncommand='matlab -nosplash -nodesktop -r ';
+
+                % escape all characters which have to be escaped to
+                %  transmit the command over ssh
+                messengercommand = strrep(messengercommand,'''','\''');
+                messengercommand = strrep(messengercommand,'(','\(');
+                messengercommand = strrep(messengercommand,')','\)');
+                messengercommand = strrep(messengercommand,';','\\;');
+
+                % we use ssh -X. This allows opening locally the remote
+                %  matlab windows, though it may be slow (expecially
+                %  graphics in software OpenGL)
                 success= (system(['ssh -X ' S.RemoteUser '@' S.Host ' ' ...
-                                  spawncommand '"' messengercommand '"&'])==0);
+                                  spawncommand '"' messengercommand '" &'])==0);
             end
             if ~success
                 S.reportError('spawning new session failed')
