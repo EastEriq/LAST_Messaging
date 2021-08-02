@@ -6,6 +6,7 @@
             %  machine by IP or by resolved name)
 
             localdesktop=false;
+            remoteterminal='xterm'; % xterm | gnome-terminal
 
             if ~isempty(S.PID)
                 S.reportError('PID already exists, probably the slave is already connected')
@@ -32,8 +33,15 @@
             
             % use xterm or gnome-terminal depending on which is
             %  installed sanely
-            spawncommand='xterm -e matlab -nosplash -nodesktop -r  ';
-            % spawncommand='gnome-terminal -- matlab -nosplash -nodesktop -r ';
+            % dbus-launch from
+            % https://unix.stackexchange.com/questions/407831/how-can-i-launch-gnome-terminal-remotely-on-my-headless-server-fails-to-launch
+            switch remoteterminal
+                case 'xterm'
+                    spawncommand='xterm -e matlab -nosplash -nodesktop -r  ';
+                case 'gnome-terminal'
+                    spawncommand=['export $(dbus-launch);'...
+                        'gnome-terminal -- matlab -nosplash -nodesktop -r '];
+            end
 
             % additional matlab commands if we want to rise the java frame:
             %  close the editor window, change title, ...
@@ -57,7 +65,6 @@
                     spawncommand='matlab -nosplash -desktop -r ';
                     success= (system([spawncommand '"' desktopcommand messengercommand '"&'])==0);
                 else
-                    % spawncommand='xterm -e "matlab -nosplash -nodesktop -r ';
                     success= (system([spawncommand '"' messengercommand '" &'])==0);
                 end
             else
@@ -67,10 +74,12 @@
 
                 % escape all characters which have to be escaped to
                 %  transmit the command over ssh
-                messengercommand = strrep(messengercommand,'''','\''');
-                messengercommand = strrep(messengercommand,'(','\(');
-                messengercommand = strrep(messengercommand,')','\)');
-                messengercommand = strrep(messengercommand,';','\\;');
+                if strcmp(remoteterminal,'xterm')
+                    messengercommand = strrep(messengercommand,'''','\''');
+                    messengercommand = strrep(messengercommand,'(','\(');
+                    messengercommand = strrep(messengercommand,')','\)');
+                    messengercommand = strrep(messengercommand,';','\\;');
+                end
 
                 % we use ssh -X. This allows opening locally the remote
                 %  matlab windows, though it may be slow (expecially
