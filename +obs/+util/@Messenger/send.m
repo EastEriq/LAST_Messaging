@@ -3,11 +3,11 @@ function send(Msng,command,requestReply,evalInListener)
 % 
 % command: a string, containing a Matlab command, or
 %          a Message object, containing all fields.
-% requestReply: boolean, if a reply is demanded (default true if omitted)
+% requestReply: boolean, if a reply is demanded (default false if omitted)
 % evalInListener: boolean, true for the special case of queries about the
 %                 Receiver (default false if omitted)
     if ~exist('requestReply','var')
-        requestReply=true;
+        requestReply=false;
     end
 
     if ~exist('evalInListener','var')

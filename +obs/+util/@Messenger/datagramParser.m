@@ -58,6 +58,10 @@ function datagramParser(Msng,~,Data)
        if M.RequestReply
            % send back a message with output in .Content and empty .Command
            Msng.reply(jsonencode(out,'ConvertInfAndNaN',false));
+           % note: found a corner case for which jsonencode is erroneously
+           %       verbose: unitCS.connect whith an unreachable focuser,
+           %       tries to read the public focuser properties despite
+           %       not requested. Go figure which bug.
        end
    catch
        Msng.reportError(sprintf('problem encoding in json the result of command "%s"',...

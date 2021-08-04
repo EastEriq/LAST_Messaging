@@ -10,7 +10,7 @@ function resp=query(Msng,command,evalInListener)
     end
 
     Msng.LastMessage=[];
-    send(Msng,command,true,evalInListener);
+    Msng.send(command,true,evalInListener);
 
     if ~isempty(Msng.LastError)
         % if send() was problematic, don't expect a reply
