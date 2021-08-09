@@ -89,7 +89,9 @@
                 success= (system(['ssh -X ' S.RemoteUser '@' S.Host ' ' ...
                                   spawncommand '"' messengercommand '" &'])==0);
             end
-            if ~success
+            if success
+                S.LastError='';
+            else
                 S.reportError('spawning new session failed')
             end
 
