@@ -48,7 +48,10 @@ classdef SpawnedMatlab < obs.LAST_Handle
                 else
                     s='notresponding';
                     %  if process doesn't exist anymore, then it the slave is dead
-                    pingcommand=['pidof MATLAB | grep ^' num2str(S.PID)];          
+                    pingcommand=['pidof MATLAB | grep ' num2str(S.PID)];
+                    % not perfect, a short S.PID could match that of
+                    %  another MATLAB process, but frankly it is pretty
+                    %  unlikely. I can't quickly think of a better solution
                     if ~strcmp(S.Host,'localhost')
                         pingcommand=['ssh ' S.RemoteUser '@' S.Host ' ' pingcommand];
                     end
