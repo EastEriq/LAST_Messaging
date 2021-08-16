@@ -50,7 +50,7 @@
             % https://unix.stackexchange.com/questions/407831/how-can-i-launch-gnome-terminal-remotely-on-my-headless-server-fails-to-launch
             switch remoteterminal
                 case 'xterm'
-                    xtitle=sprintf('-T "matlab - %s"',S.Id);
+                    xtitle=sprintf('-T "matlab_%s"',S.Id);
                     spawncommand=['xterm ' xtitle ,...
                                   ' -e matlab -nosplash -nodesktop -r  '];
                 case 'gnome-terminal'
