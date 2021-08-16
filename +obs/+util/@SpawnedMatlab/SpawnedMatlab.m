@@ -16,8 +16,8 @@ classdef SpawnedMatlab < obs.LAST_Handle
     properties (SetAccess=private)
         Status='disconnected'; % 'disconnected' | 'alive' | 'dead' | 'notresponding'
         PID   % process id of the new matlab session
-        Messenger=obs.util.Messenger; % the messenger for exchanging commands betwen the master and the slave
-        Responder=obs.util.Messenger; % the messenger for exchanging commands betwen the slave and the master
+        Messenger=obs.util.Messenger('localhost',50001,50002); % the messenger for exchanging commands betwen the master and the slave
+        Responder=obs.util.Messenger('localhost',50003,50004); % the messenger for exchanging commands betwen the slave and the master
         RemoteUser='ocs'; % username for connecting to a remote host
     end
 
@@ -32,6 +32,11 @@ classdef SpawnedMatlab < obs.LAST_Handle
             end
             if ~isempty(id)
                 S.Id=id;
+                S.Messenger.Id=[id '.Messenger'];
+                S.Responder.Id=[id '.Responder'];
+            else
+                S.Messenger.Id='spawn.Messenger';
+                S.Responder.Id='spawn.Responder';
             end
              % load configuration
             S.loadConfig(S.configFileName('create'))

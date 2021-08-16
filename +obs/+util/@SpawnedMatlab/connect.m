@@ -125,10 +125,14 @@
                 %  according to slowness of startup and timeout of the
                 %  listener
                 i=i+1;
-            end
+            end               
             S.Messenger.Verbose=v;
+            if i>=retries
+                S.reportError(sprintf(['connection with session %s not ' ...
+                                       'estabilished, aborting'], S.Id))
+                return
+            end
             S.PID=S.Messenger.query('feature(''getpid'')');
-            S.Messenger.StreamResource.Timeout=t;
             
             % create a second "Responder" messenger, for dual communication
             %  without intermixing of messages. If we are here the

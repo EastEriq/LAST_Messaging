@@ -58,6 +58,10 @@ function resp=query(Msng,command,evalInListener)
         end
         Msng.LastError='';
     else
-        Msng.reportError('Timeout while waiting for a reply message')
+        if isempty(Msng.Id)
+            Msng.reportError(sprintf('Timeout of %s waiting for a reply',Msng.Name))
+        else
+            Msng.reportError(sprintf('Timeout of %s waiting for a reply',Msng.Id))
+        end
         resp=[];
     end
