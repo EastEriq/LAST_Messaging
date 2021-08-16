@@ -1,6 +1,7 @@
-        function connect(S,host,localport,remoteport)
-            % spawns one instance of matlab, creating a messenger in it,
-            %  and a listener in the base workspace of the issueing matlab session
+        function connect(S,host,messengerlocalport,messengerremoteport,...
+                                responderlocalport,responderremoteport)
+            % spawns one instance of matlab, creating two messengers in it,
+            %  and two listeners in the base workspace of the issueing matlab session
             % The process belongs to the current user if host='localhost',
             %  and to RemoteUser for any other hostname (including the same
             %  machine by IP or by resolved name)
@@ -19,16 +20,28 @@
                 S.Host='localhost';
             end
             
-            if exist('localport','var')
-                S.LocalPort=localport;
-            elseif isempty(S.LocalPort)
-                S.LocalPort=8001;
+            if exist('messengerlocalport','var')
+                S.MessengerLocalPort=messengerlocalport;
+            elseif isempty(S.MessengerLocalPort)
+                S.MessengerLocalPort=8001;
             end
             
-            if exist('remoteport','var')
-                S.RemotePort=remoteport;
-            elseif isempty(S.RemotePort)
-                S.RemotePort=8002;
+            if exist('messengerremoteport','var')
+                S.MessengerRemotePort=messengerremoteport;
+            elseif isempty(S.MessengerRemotePort)
+                S.MessengerRemotePort=8002;
+            end
+            
+            if exist('responderlocalport','var')
+                S.ResponderLocalPort=responderlocalport;
+            elseif isempty(S.ResponderLocalPort)
+                S.ResponderLocalPort=9001;
+            end
+            
+            if exist('responderremoteport','var')
+                S.ResponderRemotePort=responderremoteport;
+            elseif isempty(S.ResponderRemotePort)
+                S.ResponderRemotePort=9002;
             end
             
             % use xterm or gnome-terminal depending on which is
@@ -50,12 +63,12 @@
             desktopcommand = ['closeNoPrompt(matlab.desktop.editor.getAll); ', ...
                 'jDesktop = com.mathworks.mde.desk.MLDesktop.getInstance; ', ...
                 sprintf('jDesktop.getMainFrame.setTitle(''spawn %d->%d''); ',...
-                S.RemotePort,S.LocalPort), 'clear jDesktop;'];
+                S.MessengerRemotePort,S.MessengerLocalPort), 'clear jDesktop;'];
 
             messengercommand = sprintf(['MasterMessenger=obs.util.Messenger(''%s'',%d,%d);'...
                 'MasterMessenger.connect;'],...
                 char(java.net.InetAddress.getLocalHost.getHostName),...
-                S.LocalPort,S.RemotePort);
+                S.MessengerLocalPort,S.MessengerRemotePort);
             % java trick to get the hostname from matlabcentral
             
             % we could check at this point: if there is already a corresponding Spawn
@@ -96,7 +109,8 @@
             end
 
             % create a listener messenger
-            S.Messenger=obs.util.Messenger(S.Host,S.RemotePort,S.LocalPort);
+            S.Messenger=obs.util.Messenger(S.Host,S.MessengerRemotePort,...
+                                           S.MessengerLocalPort);
             S.Messenger.connect; % can fail if the local port is busy
 
             % save the current verbose and timeout values, and temporarily
@@ -115,4 +129,20 @@
             S.Messenger.Verbose=v;
             S.PID=S.Messenger.query('feature(''getpid'')');
             S.Messenger.StreamResource.Timeout=t;
+            
+            % create a second "Responder" messenger, for dual communication
+            %  without intermixing of messages. If we are here the
+            %  MasterMessenger should already be functioning
+            
+            % local head
+            S.Responder=obs.util.Messenger(S.Host,S.ResponderRemotePort,...
+                                           S.ResponderLocalPort);
+            S.Responder.connect; % can fail if the local port is busy
+            % remote head
+            respondercommand = sprintf(['MasterResponder=obs.util.Messenger(''%s'',%d,%d);'...
+                'MasterResponder.connect;'],...
+                char(java.net.InetAddress.getLocalHost.getHostName),...
+                S.ResponderLocalPort,S.ResponderRemotePort);
+            S.Messenger.query(respondercommand);
+
         end

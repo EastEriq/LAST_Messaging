@@ -4,14 +4,20 @@ classdef SpawnedMatlab < obs.LAST_Handle
 
     properties
         Host  % the host on which to spawn a new matlab session
-        LocalPort % udp port on the origin computer
-        RemotePort % udp port on the destinaton host
+    end
+    
+    properties (Hidden)
+        MessengerLocalPort % udp port on the origin computer
+        MessengerRemotePort % udp port on the destinaton host
+        ResponderLocalPort % udp port on the origin computer
+        ResponderRemotePort % udp port on the destinaton host
     end
 
     properties (SetAccess=private)
         Status='disconnected'; % 'disconnected' | 'alive' | 'dead' | 'notresponding'
         PID   % process id of the new matlab session
         Messenger % the messenger for exchanging commands betwen the master and the slave
+        Responder % the messenger for exchanging commands betwen the slave and the master
         RemoteUser='last'; % username for connecting to a remote host
     end
 
@@ -21,6 +27,9 @@ classdef SpawnedMatlab < obs.LAST_Handle
             % creates the object, assigning an Id if provided, and loads
             %  the configuration. The actual spawning is done by the method
             %  .connect
+            if ~exist('id','var')
+                id='';
+            end
             if ~isempty(id)
                 S.Id=id;
             end
@@ -30,6 +39,10 @@ classdef SpawnedMatlab < obs.LAST_Handle
 
         % destructor
         function delete(S)
+            if ~isempty(S.Responder)
+                S.Responder.disconnect
+                delete(S.Responder)
+            end
             if ~isempty(S.Messenger)
                 % conditional, to work also for incomplete objects
                 S.disconnect
