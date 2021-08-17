@@ -133,6 +133,7 @@
                 i=i+1;
             end               
             S.Messenger.Verbose=v;
+            S.Messenger.StreamResource.Timeout=t;
             if i>=retries
                 S.reportError(sprintf(['connection with session %s not ' ...
                                        'estabilished, aborting'], S.Id))

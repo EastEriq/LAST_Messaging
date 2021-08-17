@@ -59,9 +59,11 @@ function resp=query(Msng,command,evalInListener)
         Msng.LastError='';
     else
         if isempty(Msng.Id)
-            Msng.reportError(sprintf('Timeout of %s waiting for a reply',Msng.Name))
+            Msng.reportError(sprintf('%s timed out waiting for a reply to "%s"',...
+                Msng.Name, command))
         else
-            Msng.reportError(sprintf('Timeout of %s waiting for a reply',Msng.Id))
+            Msng.reportError(sprintf('%s timed out waiting for a reply to "%s"',...
+                Msng.Id, command))
         end
         resp=[];
     end
