@@ -16,8 +16,8 @@ classdef SpawnedMatlab < obs.LAST_Handle
     properties (SetAccess=private)
         Status='disconnected'; % 'disconnected' | 'alive' | 'dead' | 'notresponding'
         PID   % process id of the new matlab session
-        Messenger=obs.util.Messenger('localhost',50001,50002); % the messenger for exchanging commands betwen the master and the slave
-        Responder=obs.util.Messenger('localhost',50003,50004); % the messenger for exchanging commands betwen the slave and the master
+        Messenger % the messenger between the master and the slave. Created upon .connect
+        Responder % the messenger between the slave and the master. Created upon .connect
         RemoteUser='ocs'; % username for connecting to a remote host
     end
 
@@ -32,11 +32,6 @@ classdef SpawnedMatlab < obs.LAST_Handle
             end
             if ~isempty(id)
                 S.Id=id;
-                S.Messenger.Id=[id '.Messenger'];
-                S.Responder.Id=[id '.Responder'];
-            else
-                S.Messenger.Id='spawn.Messenger';
-                S.Responder.Id='spawn.Responder';
             end
              % load configuration
             S.loadConfig(S.configFileName('create'))
@@ -59,8 +54,12 @@ classdef SpawnedMatlab < obs.LAST_Handle
         % getters and setters: propagate properties to messengers
         function set.Host(S,host)
             S.Host=host;
-            S.Messenger.DestinationHost=host;
-            S.Responder.DestinationHost=host;
+            if isa(S.Messenger,'obs.util.Messenger')
+                S.Messenger.DestinationHost=host;
+            end
+            if isa(S.Responder,'obs.util.Messenger')
+                S.Responder.DestinationHost=host;
+            end
         end
 
         % getter for Status

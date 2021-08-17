@@ -19,7 +19,7 @@ function send(Msng,command,requestReply,evalInListener)
     elseif isa(command,'obs.util.Message')
         M=command;
     else
-        Msng.reportError('wrong type of message to send')
+        Msng.reportError(sprintf('%s: wrong type of message to send',Msng.Name))
         return
     end
 
@@ -38,5 +38,6 @@ function send(Msng,command,requestReply,evalInListener)
        fwrite(Msng.StreamResource,flat);
        Msng.LastError='';
    catch
-       Msng.reportError('message datagram could not be written to udp resource')
+       Msng.reportError(sprintf(['message datagram could not be written '...
+                                 'to udp resource %s'],Msng.Name))
    end

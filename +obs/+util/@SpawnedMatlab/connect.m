@@ -111,6 +111,12 @@
             % create a listener messenger
             S.Messenger=obs.util.Messenger(S.Host,S.MessengerRemotePort,...
                                            S.MessengerLocalPort);
+            if ~isempty(S.Id)
+                S.Messenger.Id=[S.Id '.Messenger'];
+            else
+                S.Messenger.Id='spawn.Messenger';
+            end
+
             S.Messenger.connect; % can fail if the local port is busy
 
             % save the current verbose and timeout values, and temporarily
@@ -141,6 +147,11 @@
             % local head
             S.Responder=obs.util.Messenger(S.Host,S.ResponderRemotePort,...
                                            S.ResponderLocalPort);
+            if ~isempty(S.Id)
+                S.Responder.Id=[S.Id '.Responder'];
+            else
+                S.Messenger.Id='spawn.Messenger';
+            end
             S.Responder.connect; % can fail if the local port is busy
             % remote head
             respondercommand = sprintf(['MasterResponder=obs.util.Messenger(''%s'',%d,%d);'...
