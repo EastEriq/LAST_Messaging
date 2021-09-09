@@ -5,6 +5,8 @@
             % The process belongs to the current user if host='localhost',
             %  and to RemoteUser for any other hostname (including the same
             %  machine by IP or by resolved name)
+            % For consistency, matlab is always launched in $HOME, so that
+            %  a startup.m file can be assumed to be always found there
 
             localdesktop=false;
             remoteterminal='xterm'; % xterm | gnome-terminal
@@ -51,10 +53,10 @@
             switch remoteterminal
                 case 'xterm'
                     xtitle=sprintf('-T "matlab_%s"',S.Id);
-                    spawncommand=['xterm ' xtitle ,...
+                    spawncommand=['cd ~; xterm ' xtitle ,...
                                   ' -e matlab -nosplash -nodesktop -r  '];
                 case 'gnome-terminal'
-                    spawncommand=['export $(dbus-launch);'...
+                    spawncommand=['cd ~; export $(dbus-launch);'...
                         'gnome-terminal -- matlab -nosplash -nodesktop -r '];
             end
 
@@ -77,7 +79,7 @@
             % TODO: the proper startup.m should be global
             if strcmp(S.Host,'localhost')
                 if localdesktop
-                    spawncommand='matlab -nosplash -desktop -r ';
+                    spawncommand='cd ~; matlab -nosplash -desktop -r ';
                     success= (system([spawncommand '"' desktopcommand messengercommand '"&'])==0);
                 else
                     success= (system([spawncommand '"' messengercommand '" &'])==0);
@@ -125,7 +127,7 @@
             t=S.Messenger.StreamResource.Timeout;
             S.Messenger.Verbose=false;
             S.Messenger.StreamResource.Timeout=1;
-            retries=15; i=0;
+            retries=25; i=0;
             while ~S.Messenger.areYouThere && i<retries
                 % retry enough times for the spawned session to be ready, tune it
                 %  according to slowness of startup and timeout of the
