@@ -53,10 +53,10 @@
             switch remoteterminal
                 case 'xterm'
                     xtitle=sprintf('-T "matlab_%s"',S.Id);
-                    spawncommand=['cd ~; xterm ' xtitle ,...
+                    spawncommand=['xterm ' xtitle ,...
                                   ' -e matlab -nosplash -nodesktop -r  '];
                 case 'gnome-terminal'
-                    spawncommand=['cd ~; export $(dbus-launch);'...
+                    spawncommand=['export $(dbus-launch);'...
                         'gnome-terminal -- matlab -nosplash -nodesktop -r '];
             end
 
@@ -79,10 +79,10 @@
             % TODO: the proper startup.m should be global
             if strcmp(S.Host,'localhost')
                 if localdesktop
-                    spawncommand='cd ~; matlab -nosplash -desktop -r ';
-                    success= (system([spawncommand '"' desktopcommand messengercommand '"&'])==0);
+                    spawncommand='matlab -nosplash -desktop -r ';
+                    success= (system(['cd ~;' spawncommand '"' desktopcommand messengercommand '"&'])==0);
                 else
-                    success= (system([spawncommand '"' messengercommand '" &'])==0);
+                    success= (system(['cd ~;' spawncommand '"' messengercommand '" &'])==0);
                 end
             else
                 % Needs also a some mechanism of auto login. TODO.
