@@ -4,6 +4,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
 
     properties
         Host  % the host on which to spawn a new matlab session
+        RemoteUser=''; % username for connecting to a remote host. Empty if same user
     end
     
     properties (Hidden)
@@ -18,7 +19,6 @@ classdef SpawnedMatlab < obs.LAST_Handle
         PID   % process id of the new matlab session
         Messenger % the messenger between the master and the slave. Created upon .connect
         Responder % the messenger between the slave and the master. Created upon .connect
-        RemoteUser='ocs'; % username for connecting to a remote host
     end
 
     methods
@@ -77,10 +77,17 @@ classdef SpawnedMatlab < obs.LAST_Handle
                     %  another MATLAB process, but frankly it is pretty
                     %  unlikely. I can't quickly think of a better solution
                     if ~strcmp(S.Host,'localhost')
-                        pingcommand=['ssh ' S.RemoteUser '@' S.Host ' ' pingcommand];
+                        if isempty(S.RemoteUser)
+                            user='';
+                        else
+                            user=[S.RemoteUser '@'];
+                        end
+                        pingcommand=['ssh -o PasswordAuthentication=no' ...
+                                      user S.Host ' ' pingcommand];
                     end
                     if system(pingcommand)
                         % system() returns 1 if grep errors, i.e. no PID
+                        %   hopefully also if ssh fails
                         s='dead';
                     end
                 end

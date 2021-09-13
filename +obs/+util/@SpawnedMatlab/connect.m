@@ -101,13 +101,37 @@
                 % we use ssh -X. This allows opening locally the remote
                 %  matlab windows, though it may be slow (expecially
                 %  graphics in software OpenGL)
-                success= (system(['ssh -X ' S.RemoteUser '@' S.Host ' ' ...
-                                  spawncommand '"' messengercommand '" &'])==0);
+                % we try to capture the result code, to trap potential
+                %  problems -- e.g. unreachable host, wrong user
+                if isempty(S.RemoteUser)
+                    user='';
+                else
+                    user=[S.RemoteUser '@'];
+                end
+                [~,result] = system(['ssh -o PasswordAuthentication=no -fCX ' ...
+                                  user S.Host ' ' ...
+                                  spawncommand '"' messengercommand '";' ...
+                                  ' echo $?']);
+                % parse result here. There are extra \n, and there could
+                %  be "Warning: locale not supported by Xlib",
+                %  "usage:  ...", etc. We look for the last line, with
+                %  a number on it
+                lines=split(result,newline);
+                try
+                    if isempty(lines{end})
+                        success= sscanf(lines{end-1},'%d')==0;
+                    else
+                        success= sscanf(lines{end},'%d')==0;
+                    end
+                catch
+                    success=false;
+                end
             end
             if success
                 S.LastError='';
             else
                 S.reportError('spawning new session failed')
+                return
             end
 
             % create a listener messenger
@@ -128,6 +152,7 @@
             S.Messenger.Verbose=false;
             S.Messenger.StreamResource.Timeout=1;
             retries=25; i=0;
+            pause(1.5) % give time to the remote messenger to start working
             while ~S.Messenger.areYouThere && i<retries
                 % retry enough times for the spawned session to be ready, tune it
                 %  according to slowness of startup and timeout of the

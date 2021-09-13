@@ -5,7 +5,12 @@ function datagramParser(Msng,~,Data)
 % this function could logically be a private method of the Messenger class,
 % but that seems not to sit well with the instrument callback mechanism,
 % which IIUC evaluates it in the base workspace
-   stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes, fgetl no
+    if Msng.StreamResource.BytesAvailable>0
+        stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes, fgetl no
+    else
+        Msng.reportError(sprintf('udp input buffer for %s empty, nothing to process',Msng.Id))
+        return
+    end
    % diagnostic echo
    if Msng.Verbose==2 && nargin==3 % in truth so far I said that Verbose is a boolean
        Msng.report("received '" + stream + "' from " + ...
