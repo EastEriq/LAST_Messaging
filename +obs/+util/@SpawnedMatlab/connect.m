@@ -9,7 +9,6 @@
             %  a startup.m file can be assumed to be always found there
 
             localdesktop=false;
-            remoteterminal='xterm'; % xterm | gnome-terminal
 
             if ~isempty(S.PID)
                 S.reportError('PID already exists, probably the slave is already connected')
@@ -50,7 +49,7 @@
             %  installed sanely
             % dbus-launch from
             % https://unix.stackexchange.com/questions/407831/how-can-i-launch-gnome-terminal-remotely-on-my-headless-server-fails-to-launch
-            switch remoteterminal
+            switch S.RemoteTerminal
                 case 'xterm'
                     xtitle=sprintf('-T "matlab_%s"',S.Id);
                     spawncommand=['xterm ' xtitle ,...
@@ -58,6 +57,9 @@
                 case 'gnome-terminal'
                     spawncommand=['export $(dbus-launch);'...
                         'gnome-terminal -- matlab -nosplash -nodesktop -r '];
+                otherwise
+                    % 'none', or '', or anything else: silent
+                    spawncommand= 'matlab -nosplash -nodesktop -r  ';
             end
 
             % additional matlab commands if we want to rise the java frame:
@@ -78,20 +80,22 @@
             
             % TODO: the proper startup.m should be global
             if strcmp(S.Host,'localhost')
-                if localdesktop
+                if strcmp(S.RemoteTerminal,'desktop')
+                    % only local spawns are allowed to come up in full java
+                    %  glory
                     spawncommand='matlab -nosplash -desktop -r ';
                     success= (system(['cd ~;' spawncommand '"' desktopcommand messengercommand '"&'])==0);
                 else
                     success= (system(['cd ~;' spawncommand '"' messengercommand '" &'])==0);
                 end
             else
-                % Needs also a some mechanism of auto login. TODO.
+                % Needs also that some mechanism of auto login is enabled.
                 % cfr: http://rebol.com/docs/ssh-auto-login.html
                 %      https://serverfault.com/questions/241588/how-to-automate-ssh-login-with-password
 
                 % escape all characters which have to be escaped to
                 %  transmit the command over ssh
-                if strcmp(remoteterminal,'xterm')
+                if strcmp(S.RemoteTerminal,'xterm')
                     messengercommand = strrep(messengercommand,'''','\''');
                     messengercommand = strrep(messengercommand,'(','\(');
                     messengercommand = strrep(messengercommand,')','\)');

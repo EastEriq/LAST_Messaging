@@ -5,6 +5,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
     properties
         Host  % the host on which to spawn a new matlab session
         RemoteUser=''; % username for connecting to a remote host. Empty if same user
+        RemoteTerminal char ='xterm'; % 'xterm' | 'gnome-terminal' | 'desktop' | 'none'
     end
     
     properties (Hidden)
