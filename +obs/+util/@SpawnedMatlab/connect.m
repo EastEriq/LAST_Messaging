@@ -166,8 +166,8 @@
             S.Messenger.Verbose=v;
             S.Messenger.StreamResource.Timeout=t;
             if i>=retries
-                S.reportError(sprintf(['connection with session %s not ' ...
-                                       'estabilished, aborting'], S.Id))
+                S.reportError(['connection with session %s not ' ...
+                                       'estabilished, aborting'], S.Id)
                 return
             end
             S.PID=S.Messenger.query('feature(''getpid'')');

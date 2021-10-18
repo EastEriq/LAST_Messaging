@@ -4,8 +4,8 @@ function shortflat=jsonTruncate(Msng,M)
 %  so that it can be transmitted as a single datagram without error
     flat=jsonencode(M,'ConvertInfAndNaN',false);
     if length(flat)>Msng.StreamResource.OutputBufferSize
-        Msng.reportError(sprintf(['reply message too long (%d characters), truncating' ...
-            ' (perhaps increase OutputBufferSize)'],length(flat)));
+        Msng.reportError(['reply message too long (%d characters), truncating' ...
+            ' (perhaps increase OutputBufferSize)'],length(flat));
         % shorten the json string, by nulling .Command and assigning a
         %  short string to .Content - not an universal solution (e.g.
         %  doesn't shorten unreasonably long names) but reasonable for the

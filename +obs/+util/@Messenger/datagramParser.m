@@ -8,7 +8,8 @@ function datagramParser(Msng,~,Data)
     if Msng.StreamResource.BytesAvailable>0
         stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes, fgetl no
     else
-        Msng.reportError(sprintf('udp input buffer for %s empty, nothing to process',Msng.Id))
+        Msng.reportError('udp input buffer for %s empty, nothing to process',...
+                          Msng.Id)
         return
     end
    % diagnostic echo
@@ -56,8 +57,8 @@ function datagramParser(Msng,~,Data)
             end
        end
    catch
-       Msng.reportError(sprintf('illegal messenger command "%s" received from %s',...
-                                M.Command,M.From));
+       Msng.reportError('illegal messenger command "%s" received from %s',...
+                                M.Command,M.From);
    end
    try
        if M.RequestReply
@@ -69,8 +70,8 @@ function datagramParser(Msng,~,Data)
            %       not requested. Go figure which bug.
        end
    catch
-       Msng.reportError(sprintf('problem encoding in json the result of command "%s"',...
-                                M.Command));
+       Msng.reportError('problem encoding in json the result of command "%s"',...
+                                M.Command);
        if M.RequestReply
            % send back a message with Error! in .Content and empty .Command
            Msng.reply('"Error!"'); % double quotes for json

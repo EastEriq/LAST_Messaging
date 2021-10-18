@@ -4,7 +4,7 @@ function resp=areYouThere(Msng)
     try
         resp=~isempty(query(Msng,'true'));
     catch
-        Msng.reportError(sprintf('no response received by %s: does the other end exist?',...
-                                  Msng.Name))
+        Msng.reportError('no response received by %s: does the other end exist?',...
+                                  Msng.Name)
         resp=false;
     end
