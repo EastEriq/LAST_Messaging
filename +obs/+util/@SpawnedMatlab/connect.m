@@ -8,8 +8,6 @@
             % For consistency, matlab is always launched in $HOME, so that
             %  a startup.m file can be assumed to be always found there
 
-            localdesktop=false;
-
             if ~isempty(S.PID)
                 S.reportError('PID already exists, probably the slave is already connected')
                 return
@@ -44,9 +42,7 @@
             elseif isempty(S.ResponderRemotePort)
                 S.ResponderRemotePort=9002;
             end
-            
-            sessioncommand=' matlab -nosplash -nodesktop -r ';
-            
+                        
             if S.Logging
                 % copy stdout and stderr in two separate files
                 % from https://stackoverflow.com/questions/692000/how-do-i-write-stderr-to-a-file-while-using-tee-with-a-pipe/692407#692407
@@ -59,6 +55,16 @@
             else
                 loggingpipe = '';
             end
+            
+            messengercommand = ...
+                sprintf(['MasterMessenger=obs.util.Messenger(''%s'',%d,%d);'...
+                'MasterMessenger.connect;'],...
+                char(java.net.InetAddress.getLocalHost.getHostName),...
+                S.MessengerLocalPort,S.MessengerRemotePort);
+            % java trick to get the hostname, from matlabcentral
+            
+            desktopcommand='';
+            
             % use xterm or gnome-terminal depending on which is
             %  installed sanely
             switch S.RemoteTerminal
@@ -66,46 +72,51 @@
                     xtitle=sprintf('-T "matlab_%s"',S.Id);
                     % for X colors see e.g. https://en.wikipedia.org/wiki/X11_color_names
                     spawncommand=['xterm ' xtitle ,...
-                                  ' -sb -bg aliceblue -fg black -cr blue', ...
-                                  ' -e' sessioncommand];
+                        ' -sb -bg aliceblue -fg black -cr blue', ...
+                        ' -e '];
+                    matlabcommand = 'matlab -nosplash -nodesktop -r ';
                 case 'gnome-terminal'
                     % dbus-launch from
                     % https://unix.stackexchange.com/questions/407831/how-can-i-launch-gnome-terminal-remotely-on-my-headless-server-fails-to-launch
                     spawncommand=['export $(dbus-launch);'...
-                        'gnome-terminal --' sessioncommand];
+                        'gnome-terminal -- bash -c '];
+                    matlabcommand = 'matlab -nosplash -nodesktop -r ';
+                case 'desktop'
+                    % only local spawns should be allowed to come up
+                    %  in full java glory
+                   spawncommand = '';
+                   matlabcommand = 'matlab -nosplash -r ';
                 otherwise
-                    % 'none', or '', or anything else: silent
-                    spawncommand = sessioncommand;
+                    % 'none', or '', or anything else: silent: problems
+                    %  with backrounding?
+                    spawncommand = '';
+                    matlabcommand = 'matlab -nosplash -nodesktop -r ';
             end
-
-            % additional matlab commands if we want to rise the java frame:
-            %  close the editor window, change title, ...
-            desktopcommand = ['closeNoPrompt(matlab.desktop.editor.getAll); ', ...
-                'jDesktop = com.mathworks.mde.desk.MLDesktop.getInstance; ', ...
-                sprintf('jDesktop.getMainFrame.setTitle(''spawn %d->%d''); ',...
-                S.MessengerRemotePort,S.MessengerLocalPort), 'clear jDesktop;'];
-
-            messengercommand = sprintf(['MasterMessenger=obs.util.Messenger(''%s'',%d,%d);'...
-                'MasterMessenger.connect;'],...
-                char(java.net.InetAddress.getLocalHost.getHostName),...
-                S.MessengerLocalPort,S.MessengerRemotePort);
-            % java trick to get the hostname from matlabcentral
-            
+                        
             % we could check at this point: if there is already a corresponding Spawn
             %  messenger, and if it talks to a session (areYouThere), don't proceed.
             
             % TODO: the proper startup.m should be global
             if strcmp(S.Host,'localhost')
-                if strcmp(S.RemoteTerminal,'desktop')
-                    % only local spawns are allowed to come up in full java
-                    %  glory
-                    spawncommand = sessioncommand;
-                    success= (system(['cd ~;' spawncommand '"' desktopcommand ...
-                                      messengercommand '" ' loggingpipe '&'])==0);
-                else
-                    success= (system(['cd ~;' spawncommand '"' ...
-                                      messengercommand '" ' loggingpipe '&'])==0);
-                end
+               switch S.RemoteTerminal
+                   case {'xterm','gnome-terminal'}
+                       shellcommand= ['"' matlabcommand '\"' ...
+                                         messengercommand '\"' loggingpipe '"'];
+                   case 'desktop'
+                       % additional matlab commands if we want to rise the java frame:
+                       %  close the editor window, change title, ...
+                       desktopcommand = ['closeNoPrompt(matlab.desktop.editor.getAll); ', ...
+                            'jDesktop = com.mathworks.mde.desk.MLDesktop.getInstance; ', ...
+                            sprintf('jDesktop.getMainFrame.setTitle(''spawn %d->%d''); ',...
+                            S.MessengerRemotePort,S.MessengerLocalPort), 'clear jDesktop;'];
+                       shellcommand= [matlabcommand '"' desktopcommand ...
+                                      messengercommand '"' loggingpipe];
+                   otherwise
+                       shellcommand= [matlabcommand '"' ...
+                                      messengercommand '"' loggingpipe];                       
+               end
+               % not yet ok for 'desktop' and 'silent'
+               success= (system(['cd ~; ' spawncommand shellcommand '&'])==0);
             else
                 % Needs also that some mechanism of auto login is enabled.
                 % cfr: http://rebol.com/docs/ssh-auto-login.html
@@ -114,10 +125,11 @@
                 % escape all characters which have to be escaped to
                 %  transmit the command over ssh
                 if strcmp(S.RemoteTerminal,'xterm')
-                    messengercommand = strrep(messengercommand,'''','\''');
-                    messengercommand = strrep(messengercommand,'(','\(');
-                    messengercommand = strrep(messengercommand,')','\)');
-                    messengercommand = strrep(messengercommand,';','\\;');
+%                     messengercommand = strrep(messengercommand,'''','\''');
+%                     messengercommand = strrep(messengercommand,'(','\(');
+%                     messengercommand = strrep(messengercommand,')','\)');
+%                     messengercommand = strrep(messengercommand,';','\\;');
+                    spawncommand = strrep(spawncommand,'"','\"');
                 end
 
                 % we use ssh -X. This allows opening locally the remote
@@ -131,8 +143,10 @@
                     user=[S.RemoteUser '@'];
                 end
                 [~,result] = system(['ssh -o PasswordAuthentication=no -fCX ' ...
-                                  user S.Host ' ' spawncommand '"' ...
-                                  messengercommand '" ' loggingpipe ';' ...
+                                  user S.Host ' "' spawncommand ...
+                                  '\"' matlabcommand ...
+                                  '\\\"' messengercommand '\\\"' ...
+                                  loggingpipe '\"";' ...
                                   ' echo $?']);
                 % parse result here. There are extra \n, and there could
                 %  be "Warning: locale not supported by Xlib",
