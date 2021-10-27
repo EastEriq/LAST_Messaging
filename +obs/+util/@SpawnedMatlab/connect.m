@@ -63,8 +63,6 @@
                 S.MessengerLocalPort,S.MessengerRemotePort);
             % java trick to get the hostname, from matlabcentral
             
-            desktopcommand='';
-            
             % use xterm or gnome-terminal depending on which is
             %  installed sanely
             switch S.RemoteTerminal
@@ -76,16 +74,18 @@
                         ' -e '];
                     matlabcommand = 'matlab -nosplash -nodesktop -r ';
                 case 'gnome-terminal'
-                    % dbus-launch from
-                    % https://unix.stackexchange.com/questions/407831/how-can-i-launch-gnome-terminal-remotely-on-my-headless-server-fails-to-launch
-                    spawncommand=['export $(dbus-launch);'...
-                        'gnome-terminal -- bash -c '];
+                    spawncommand='gnome-terminal -- bash -c ';
+                    if ~strcmp(S.Host,'localhost')
+                        % dbus-launch from
+                        % https://unix.stackexchange.com/questions/407831/how-can-i-launch-gnome-terminal-remotely-on-my-headless-server-fails-to-launch
+                        spawncommand=['export $(dbus-launch);' spawncommand];
+                    end
                     matlabcommand = 'matlab -nosplash -nodesktop -r ';
                 case 'desktop'
                     % only local spawns should be allowed to come up
                     %  in full java glory
-                   spawncommand = '';
-                   matlabcommand = 'matlab -nosplash -r ';
+                    spawncommand = '';
+                    matlabcommand = 'matlab -nosplash -r ';
                 otherwise
                     % 'none', or '', or anything else: silent: problems
                     %  with backrounding?
