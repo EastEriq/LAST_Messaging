@@ -13,6 +13,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
         MessengerRemotePort % udp port on the destinaton host
         ResponderLocalPort % udp port on the origin computer
         ResponderRemotePort % udp port on the destinaton host
+        Logging logical =false; % this property must be set before connect
     end
 
     properties (SetAccess=private)

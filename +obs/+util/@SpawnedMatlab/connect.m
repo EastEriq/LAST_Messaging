@@ -45,21 +45,37 @@
                 S.ResponderRemotePort=9002;
             end
             
+            sessioncommand=' matlab -nosplash -nodesktop -r ';
+            
+            if S.Logging
+                % copy stdout and stderr in two separate files
+                % from https://stackoverflow.com/questions/692000/how-do-i-write-stderr-to-a-file-while-using-tee-with-a-pipe/692407#692407
+                % Tested ok with bash, but beware that it could behave
+                %  differently in other shells
+                loggingpipe = sprintf(['> >(tee -a %s_stdout.log) 2> ',...
+                                       '>(tee -a %s_stderr.log >&2)'],...
+                                       sprintf('matlab_%s',S.Id), ...
+                                       sprintf('matlab_%s',S.Id) );
+            else
+                loggingpipe = '';
+            end
             % use xterm or gnome-terminal depending on which is
             %  installed sanely
-            % dbus-launch from
-            % https://unix.stackexchange.com/questions/407831/how-can-i-launch-gnome-terminal-remotely-on-my-headless-server-fails-to-launch
             switch S.RemoteTerminal
                 case 'xterm'
                     xtitle=sprintf('-T "matlab_%s"',S.Id);
+                    % for X colors see e.g. https://en.wikipedia.org/wiki/X11_color_names
                     spawncommand=['xterm ' xtitle ,...
-                                  ' -e matlab -nosplash -nodesktop -r  '];
+                                  ' -sb -bg aliceblue -fg black -cr blue', ...
+                                  ' -e' sessioncommand];
                 case 'gnome-terminal'
+                    % dbus-launch from
+                    % https://unix.stackexchange.com/questions/407831/how-can-i-launch-gnome-terminal-remotely-on-my-headless-server-fails-to-launch
                     spawncommand=['export $(dbus-launch);'...
-                        'gnome-terminal -- matlab -nosplash -nodesktop -r '];
+                        'gnome-terminal --' sessioncommand];
                 otherwise
                     % 'none', or '', or anything else: silent
-                    spawncommand= 'matlab -nosplash -nodesktop -r  ';
+                    spawncommand = sessioncommand;
             end
 
             % additional matlab commands if we want to rise the java frame:
@@ -83,10 +99,12 @@
                 if strcmp(S.RemoteTerminal,'desktop')
                     % only local spawns are allowed to come up in full java
                     %  glory
-                    spawncommand='matlab -nosplash -desktop -r ';
-                    success= (system(['cd ~;' spawncommand '"' desktopcommand messengercommand '"&'])==0);
+                    spawncommand = sessioncommand;
+                    success= (system(['cd ~;' spawncommand '"' desktopcommand ...
+                                      messengercommand '" ' loggingpipe '&'])==0);
                 else
-                    success= (system(['cd ~;' spawncommand '"' messengercommand '" &'])==0);
+                    success= (system(['cd ~;' spawncommand '"' ...
+                                      messengercommand '" ' loggingpipe '&'])==0);
                 end
             else
                 % Needs also that some mechanism of auto login is enabled.
@@ -113,8 +131,8 @@
                     user=[S.RemoteUser '@'];
                 end
                 [~,result] = system(['ssh -o PasswordAuthentication=no -fCX ' ...
-                                  user S.Host ' ' ...
-                                  spawncommand '"' messengercommand '";' ...
+                                  user S.Host ' ' spawncommand '"' ...
+                                  messengercommand '" ' loggingpipe ';' ...
                                   ' echo $?']);
                 % parse result here. There are extra \n, and there could
                 %  be "Warning: locale not supported by Xlib",
