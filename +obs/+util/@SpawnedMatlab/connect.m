@@ -48,10 +48,11 @@
                 % from https://stackoverflow.com/questions/692000/how-do-i-write-stderr-to-a-file-while-using-tee-with-a-pipe/692407#692407
                 % Tested ok with bash, but beware that it could behave
                 %  differently in other shells
+                tstart=datestr(now,'yyyymmddHHMMSS');
                 loggingpipe = sprintf(['> >(tee -a %s_stdout.log) 2> ',...
                                        '>(tee -a %s_stderr.log >&2)'],...
-                                       sprintf('matlab_%s',S.Id), ...
-                                       sprintf('matlab_%s',S.Id) );
+                                       sprintf('matlab_%s_%s',S.Id,tstart), ...
+                                       sprintf('matlab_%s_%s',S.Id,tstart) );
             else
                 loggingpipe = '';
             end
@@ -84,6 +85,8 @@
                 case 'desktop'
                     % only local spawns should be allowed to come up
                     %  in full java glory
+                    % stdout will go to the window and not to the pipe
+                    %  anyway, the eventual logfile will remain empty
                     spawncommand = '';
                     matlabcommand = 'matlab -nosplash -r ';
                 otherwise
