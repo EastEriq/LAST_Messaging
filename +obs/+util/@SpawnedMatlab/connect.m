@@ -8,6 +8,9 @@
             % For consistency, matlab is always launched in $HOME, so that
             %  a startup.m file can be assumed to be always found there
 
+            % FIXME: do not work yet:
+            %  -silent on local and remote host (matlab not backgroundable?)
+
             if ~isempty(S.PID)
                 S.reportError('PID already exists, probably the slave is already connected')
                 return
@@ -77,8 +80,9 @@
                 case 'gnome-terminal'
                     spawncommand='gnome-terminal -- bash -c ';
                     if ~strcmp(S.Host,'localhost')
-                        % dbus-launch from
+                        % dbus-launch needed for remore hosts, from
                         % https://unix.stackexchange.com/questions/407831/how-can-i-launch-gnome-terminal-remotely-on-my-headless-server-fails-to-launch
+                        % but is still very slow. why?
                         spawncommand=['export $(dbus-launch);' spawncommand];
                     end
                     matlabcommand = 'matlab -nosplash -nodesktop -r ';
@@ -88,17 +92,17 @@
                     % stdout will go to the window and not to the pipe
                     %  anyway, the eventual logfile will remain empty
                     spawncommand = '';
-                    matlabcommand = 'matlab -nosplash -r ';
+                    matlabcommand = 'matlab -nosplash -desktop -r ';
                 otherwise
                     % 'none', or '', or anything else: silent: problems
                     %  with backrounding?
                     spawncommand = '';
                     matlabcommand = 'matlab -nosplash -nodesktop -r ';
             end
-                        
+   
             % we could check at this point: if there is already a corresponding Spawn
             %  messenger, and if it talks to a session (areYouThere), don't proceed.
-            
+
             % TODO: the proper startup.m should be global
             if strcmp(S.Host,'localhost')
                switch S.RemoteTerminal
@@ -124,33 +128,40 @@
                 % Needs also that some mechanism of auto login is enabled.
                 % cfr: http://rebol.com/docs/ssh-auto-login.html
                 %      https://serverfault.com/questions/241588/how-to-automate-ssh-login-with-password
-
-                % escape all characters which have to be escaped to
-                %  transmit the command over ssh
-                if strcmp(S.RemoteTerminal,'xterm')
-%                     messengercommand = strrep(messengercommand,'''','\''');
-%                     messengercommand = strrep(messengercommand,'(','\(');
-%                     messengercommand = strrep(messengercommand,')','\)');
-%                     messengercommand = strrep(messengercommand,';','\\;');
-                    spawncommand = strrep(spawncommand,'"','\"');
-                end
-
-                % we use ssh -X. This allows opening locally the remote
-                %  matlab windows, though it may be slow (expecially
-                %  graphics in software OpenGL)
-                % we try to capture the result code, to trap potential
-                %  problems -- e.g. unreachable host, wrong user
                 if isempty(S.RemoteUser)
                     user='';
                 else
                     user=[S.RemoteUser '@'];
                 end
-                [~,result] = system(['ssh -o PasswordAuthentication=no -fCX ' ...
-                                  user S.Host ' "' spawncommand ...
+
+                % we use ssh -X. This allows opening locally the remote
+                %  matlab windows, though it may be slow (expecially
+                %  graphics in software OpenGL)
+
+               sshcommand=['ssh -o PasswordAuthentication=no -fCX ' user S.Host];
+                % we try to capture the result code, to trap potential
+                %  problems -- e.g. unreachable host, wrong user
+
+                % escape all characters which have to be escaped to
+                %  transmit the command over ssh
+                if any(strcmp(S.RemoteTerminal,{'xterm','gnome-terminal'}))
+%                     messengercommand = strrep(messengercommand,'''','\''');
+%                     messengercommand = strrep(messengercommand,'(','\(');
+%                     messengercommand = strrep(messengercommand,')','\)');
+%                     messengercommand = strrep(messengercommand,';','\\;');
+                    spawncommand = strrep(spawncommand,'"','\"');
+                    [~,result] = system([sshcommand ' "' spawncommand ...
                                   '\"' matlabcommand ...
                                   '\\\"' messengercommand '\\\"' ...
                                   loggingpipe '\"";' ...
                                   ' echo $?']);
+                else
+                     [~,result] = system([sshcommand ' "' spawncommand ...
+                                  matlabcommand ...
+                                  '\"' messengercommand '\"' ...
+                                  loggingpipe '";' ...
+                                  ' echo $?']);
+                end
                 % parse result here. There are extra \n, and there could
                 %  be "Warning: locale not supported by Xlib",
                 %  "usage:  ...", etc. We look for the last line, with
@@ -190,7 +201,7 @@
             t=S.Messenger.StreamResource.Timeout;
             S.Messenger.Verbose=false;
             S.Messenger.StreamResource.Timeout=1;
-            retries=25; i=0;
+            retries=40; i=0;
             pause(1.5) % give time to the remote messenger to start working
             while ~S.Messenger.areYouThere && i<retries
                 % retry enough times for the spawned session to be ready, tune it

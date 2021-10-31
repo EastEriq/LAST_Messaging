@@ -6,6 +6,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
         Host  % the host on which to spawn a new matlab session
         RemoteUser=''; % username for connecting to a remote host. Empty if same user
         RemoteTerminal char ='xterm'; % 'xterm' | 'gnome-terminal' | 'desktop' | 'none'
+        Logging logical =false; % create stdout and stderr log files. Must be set BEFORE connect
     end
     
     properties (Hidden)
@@ -13,7 +14,6 @@ classdef SpawnedMatlab < obs.LAST_Handle
         MessengerRemotePort % udp port on the destinaton host
         ResponderLocalPort % udp port on the origin computer
         ResponderRemotePort % udp port on the destinaton host
-        Logging logical =false; % this property must be set before connect
     end
 
     properties (SetAccess=private)
@@ -94,6 +94,13 @@ classdef SpawnedMatlab < obs.LAST_Handle
                     end
                 end
             end
+        end
+
+        function set.Logging(S,tof)
+            if ~isempty(S.PID)
+                S.reportError('Logging state changes are effecive only before connecting')
+            end
+            S.Logging=tof;
         end
 
     end
