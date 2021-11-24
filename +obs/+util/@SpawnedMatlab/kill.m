@@ -3,12 +3,22 @@ function kill(S)
 %  session, by PID
 if ~isempty(S.PID)
     if strcmp(S.Host,'localhost')
-        system(['kill -9 ' num2str(S.PID)]);
+        success=system(['kill -9 ' num2str(S.PID)]);
     else
-        % try with ssh - TODO
-        system(['ssh ' S.RemoteUser '@' S.Host ' kill -9 ' num2str(S.PID)]);
+        % try with ssh
+        if ~isempty(S.RemoteUser)
+            account = [S.RemoteUser '@' S.Host];
+        else
+            % no user specified, i.e. automatic login with the same user
+            %  name
+            account = S.Host;
+        end
+        success=system(['ssh ' account ' kill -9 ' num2str(S.PID)]);
     end
-    S.PID=[];
+    if success==0
+        S.PID=[];
+        S.Status='disconnected';
+    end
 end
     S.Status='disconnected';
 end
