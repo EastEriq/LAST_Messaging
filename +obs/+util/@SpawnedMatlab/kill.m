@@ -20,5 +20,5 @@ if ~isempty(S.PID)
         S.Status='disconnected';
     end
 else
-    S.report('empty process ID, no idea about what to kill')
+    S.report('empty process ID, no idea about what to kill\n')
 end
