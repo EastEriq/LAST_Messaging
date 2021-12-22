@@ -1,9 +1,12 @@
 function disconnect(S)
     % try to quit gracefully the spawned session (if it responds normally)
     if isa(S.Messenger,'obs.util.Messenger')
-        S.Messenger.send('exit')
-        % if this times out, kill
-        if ~isempty(S.Messenger.LastError)
+        alive=S.Messenger.areYouThere;
+        if alive
+            S.Messenger.send('exit')
+        end
+        % if the slave is dead/unresponsive, or send times out, kill
+        if ~alive || ~isempty(S.Messenger.LastError)
             S.report(['graceful exit of slave session ' S.Id ...
                 ' timed out, attempting to kill\n'])
             S.kill
