@@ -1,7 +1,10 @@
 function disconnect(S)
     % try to quit gracefully the spawned session (if it responds normally)
     if isa(S.Messenger,'obs.util.Messenger')
-        alive=S.Messenger.areYouThere;
+        % we check S.Status, because the logic is already in there.
+        % If it is 'disconnected', we do not waste time in
+        %  checking communinication and getting a timeout without need.
+        alive=strcmp(S.Status,'alive');
         if alive
             S.Messenger.send('exit')
         end
