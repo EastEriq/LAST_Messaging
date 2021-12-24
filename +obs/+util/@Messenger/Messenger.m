@@ -82,11 +82,11 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
             % this is not called when clearing the object? Probably it is a
             % NonDestructor, because it calls subproperties of .StreamResource
             % Thus:
-            % M=obs.util.messenger(....); M.connect; M.disconnect; clear M
+            % M=obs.util.Messenger(....); M.connect; M.disconnect; clear M
             %   and
-            % M=obs.util.messenger(....); M.connect; delete(M)
+            % M=obs.util.Messenger(....); M.connect; delete(M)
             %   correctly delete the udp resource (which disappears from instrfind), but
-            % M=obs.util.messenger(....); M.connect; clear M
+            % M=obs.util.Messenger(....); M.connect; clear M
             %    not. Why?
             % Moreover, delete(instrfind) in the latter case enters this
             %  destructor, which is odd.
@@ -94,7 +94,7 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
                 Msng.disconnect;
                 delete(Msng.StreamResource); % doesn't delete it? I still see it in instrfind
             catch
-                Msng.reportError('cannot delete the Messenger udp resource')
+                Msng.reportError('cannot delete Messenger udp resource')
                 % this cannot be reported in Msng.LastError, nor the error
                 %  can contain more identifying information, because the
                 %  object is not anymore
