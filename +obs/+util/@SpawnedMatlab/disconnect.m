@@ -17,7 +17,7 @@ function disconnect(S)
             S.Status='disconnected';
         else
             S.report(['graceful exit of slave session ' S.Id ...
-                ' timed out'])
+                ' timed out\n'])
         end
 
         if ~isempty(S.PID)
