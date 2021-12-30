@@ -87,7 +87,8 @@ classdef SpawnedMatlab < obs.LAST_Handle
                         pingcommand=['ssh -o PasswordAuthentication=no' ...
                                       user S.Host ' ' pingcommand];
                     end
-                    if system(pingcommand)
+                    [result,~]=system(pingcommand); % to suppress output on stdout
+                    if result
                         % system() returns 1 if grep errors, i.e. no PID
                         %   hopefully also if ssh fails
                         s='dead';
