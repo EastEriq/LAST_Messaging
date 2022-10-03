@@ -7,6 +7,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
         RemoteUser=''; % username for connecting to a remote host. Empty if same user
         RemoteTerminal char ='xterm'; % 'xterm' | 'gnome-terminal' | 'desktop' | 'none'
         Logging logical =false; % create stdout and stderr log files. Must be set BEFORE connect
+        LoggingDir char ; % directory where to log. Must be set BEFORE connect
     end
     
     properties (Hidden)
@@ -99,9 +100,25 @@ classdef SpawnedMatlab < obs.LAST_Handle
 
         function set.Logging(S,tof)
             if ~isempty(S.PID)
-                S.reportError('Logging state changes are effecive only before connecting')
+                S.reportError('Logging state changes are effecive only before connecting!')
+                return
             end
             S.Logging=tof;
+        end
+
+        function set.LoggingDir(S,path)
+            if ~isempty(S.PID)
+                S.reportError('Logging directory changes are effecive only before connecting!')
+                return
+            end
+            if ~isfolder(path)
+                try
+                    mkdir(path);
+                catch
+                    S.reportError('logging directory nonexistent and impossible to be created')
+                end
+            end
+            S.LoggingDir=path;
         end
 
     end
