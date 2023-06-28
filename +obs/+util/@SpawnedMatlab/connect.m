@@ -7,9 +7,13 @@
             %  machine by IP or by resolved name)
             % For consistency, matlab is always launched in $HOME, so that
             %  a startup.m file can be assumed to be always found there
-
-            % FIXME: do not work yet:
-            %  -silent on local and remote host (matlab not backgroundable?)
+            % NOTE: for RemoteTerminal = 'xterm' | 'gnome-terminal' | 'desktop'
+            %       the prompt is available for user interaction in the
+            %       (visible) matlab shell window. For 'none', we put
+            %       matlab in an infinite while loop, otherwise it
+            %       quits after having executed the messenger setup command
+            %      It is yet to be ascertained that this does not have side
+            %       consequences.
 
             if ~isempty(S.PID)
                 S.reportError('PID already exists, probably the slave is already connected')
@@ -65,8 +69,17 @@
                 'MasterMessenger.connect;'],...
                 char(java.net.InetAddress.getLocalHost.getHostName),...
                 S.MessengerLocalPort,S.MessengerRemotePort);
-            % java trick to get the hostname, from matlabcentral
-            
+             % java trick to get the hostname, from matlabcentral
+
+            if strcmp(S.RemoteTerminal,'none')
+                % if there is no window, put matlab in an infinite loop,
+                %  otherwise it just quits after messengercommand is
+                %  executed
+                % matlab can always be closed by sending 'exit' as
+                %  messenger command.
+                messengercommand=[messengercommand,' while true; pause(0.02); end'];
+            end
+             
             % use xterm or gnome-terminal depending on which is
             %  installed sanely
             switch S.RemoteTerminal
