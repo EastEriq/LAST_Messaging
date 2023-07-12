@@ -3,8 +3,8 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
     properties
         DestinationHost='localhost'; % Destination host. Named or IP. localhost valid
         DestinationPort=50001; % Port on the destination host
-        LocalPort=50000; % port on the local host. Can be same as DestinationPort if DestinationHost is not localhost
-        EnablePortSharing='off'; % if 'on', different processses on the same localhost can receive on the same port
+        LocalPort; % port on the local host. Can be same as DestinationPort if DestinationHost is not localhost
+        EnablePortSharing='on'; % if 'on', different processses on the same localhost can receive on the same port
         Name % free text, useful for labelling the Messenger object
         MessagesSent=0; % incrementing number of messages sent
     end
@@ -24,9 +24,11 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
         %  resolved name. localhost as well as 127.0.0.1 are valid.
         %  0.0.0.0 is valid? (TBD)
         % DestinationPort: the port used on the target host
-        % LocalPort: (default 50000) must not be identical to
+        % LocalPort: (default []) must not be identical to
         %  DestinationPort, if host is localhost, i.e. if the messenger
         %  channel is between processes running on the same computer
+        % Name: free text name (default:
+        %   'localhost:LocalPort->Host:DestinationPort')
             if exist('Host','var')
                 Msng.DestinationHost=Host;
             end
@@ -38,12 +40,13 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
             if exist('LocalPort','var')
                 Msng.LocalPort=LocalPort;
             else
-                Msng.LocalPort=50000;
+                Msng.LocalPort=[]; % this means, let the system assign at random
             end
             if strcmp(resolvehost(Msng.DestinationHost,'address'),...
-                            resolvehost('localhost','address')) &&...
-               Msng.DestinationPort==Msng.LocalPort
+                            resolvehost('localhost','address'))
+               if ~isempty(Msng.LocalPort) && Msng.DestinationPort==Msng.LocalPort
                  warning('using the same ports for messengers on the same host is not reccommended')
+               end
             end
 
             if exist('Name','var')
@@ -61,21 +64,30 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
                 %  more errror prone, probably)
                 delete(instrfind('RemoteHost',Msng.DestinationHost,'RemotePort',Msng.DestinationPort))
             catch
-                Msng.LastError=['cannot delete udp object ' Msng.DestinationHost  ':' ...
-                    num2str(Msng.DestinationPort) ];
+                Msng.reportError('cannot delete udp object %s:%d',...
+                    Msng.DestinationHost, Msng.DestinationPort);
             end
             % then create
             try
-                Msng.StreamResource=udp(Msng.DestinationHost,Msng.DestinationPort,...
-                    'LocalPort',Msng.LocalPort,...
-                    'EnablePortSharing','off',...
-                    'InputBufferSize',2048,...
-                    'OutputBufferSize',2048,...
-                    'Name',Msng.Name);
+                if ~isempty(Msng.LocalPort)
+                    Msng.StreamResource=udp(Msng.DestinationHost,Msng.DestinationPort,...
+                        'LocalPort',Msng.LocalPort,...
+                        'EnablePortSharing','on',...
+                        'InputBufferSize',2048,...
+                        'OutputBufferSize',2048,...
+                        'Name',Msng.Name);
+                else
+                    Msng.StreamResource=udp(Msng.DestinationHost,Msng.DestinationPort,...
+                        'EnablePortSharing','on',...
+                        'InputBufferSize',2048,...
+                        'OutputBufferSize',2048,...
+                        'Name',Msng.Name);
+                    % Msng.LocalPort will be assigned only when connected
+                end
             catch
-                Msng.LastError=['cannot create udp object ' Msng.DestinationHost  ':' ...
-                    num2str(Msng.DestinationPort) ];
-            end           
+                Msng.reportError('cannot create udp object %s:%d',...
+                    Msng.DestinationHost,Msng.DestinationPort);
+            end
         end
         
         function delete(Msng)
@@ -170,9 +182,13 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
         %  would be a good idea, but we have a problem at creation, because
         %  StreamResource is created last. try-catch those cases
         function port=get.LocalPort(Msng)
-            port=Msng.StreamResource.LocalPort;
+            try
+                port=Msng.StreamResource.LocalPort;
+            catch
+                Msng.reportError('could get LocalPort. StreamResource not created?')
+            end
         end
-        
+ 
         function port=get.DestinationPort(Msng)
             port=Msng.StreamResource.RemotePort;
         end
