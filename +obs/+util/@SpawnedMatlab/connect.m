@@ -3,7 +3,11 @@ function success=connect(S)
 % .spawn, perhaps even by another matlab process
 % Connecting to a session spawned by another matlab process is in most cases
 %  a bad idea, because that session will have messengers pointing to its
-%  originator. An additional connection will break the assumed bidirectionality
+%  originator. An additional connection will break the assumed
+%  bidirectionality.
+% As a last resort, we could try to use the existing remote Responder (if is
+%  there) to force a disconnect from the original creator (TODO, if it is
+%  possible to work out all details)
 
     success=false;
 
@@ -56,7 +60,20 @@ function success=connect(S)
     % create a second "Responder" messenger, for dual communication
     %  without intermixing of messages. If we are here the
     %  MasterMessenger should already be functioning
-
+    
+    % attempt to disconnect the original spawner, if there is one:
+    %  use the remote responder.
+    if S.Messenger.query('exist(''MasterResponder'',''var'') && isa(MasterResponder,''obs.util.Messenger'')')
+        [~,hostname]=system('hostname');
+        msg=sprintf('PID %d on %s is now taking control of the spawned session',...
+                feature('getpid'),hostname(1:end-1));
+        % can we also find out the .Id of the spawned session on the originator?
+        S.Messenger.send(sprintf('MasterResponder.send(''disp(''''%s'''')'')',...
+            msg))
+        % and now how do we know how the SpawnedMatlab object is called
+        % there?
+    end
+    
     % local Responder head
     S.Responder=obs.util.Messenger(S.Host,S.ResponderRemotePort,...
                                    S.ResponderLocalPort);
