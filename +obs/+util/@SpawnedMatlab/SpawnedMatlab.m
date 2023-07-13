@@ -42,6 +42,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
 
         % destructor
         function delete(S)
+            S.terminate
             if ~isempty(S.Responder)
                 S.Responder.disconnect
                 delete(S.Responder)

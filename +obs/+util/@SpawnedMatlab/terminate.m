@@ -1,5 +1,7 @@
 function terminate(S)
-    % try to quit gracefully the spawned session (if it responds normally)
+    % try to quit gracefully the spawned session (if it responds normally),
+    %  otherwise kill it. Needs that .Messenger is connected, for normal
+    %  operation
 
     if isa(S.Messenger,'obs.util.Messenger')
 
