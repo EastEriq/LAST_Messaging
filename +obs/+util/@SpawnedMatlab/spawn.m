@@ -17,7 +17,8 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
     %       consequences.
 
     if ~isempty(S.PID)
-        S.reportError('PID already exists, probably the slave is already connected')
+        S.reportError('PID exists, probably the slave has been already created')
+        S.report('  try .connect to attempt reconnecting\n')
         return
     end
 
