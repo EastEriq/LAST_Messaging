@@ -1,4 +1,4 @@
-function datagramParser(Msng)
+function goOn=datagramParser(Msng)
 % Variation of the Messenger callback function, here called instead
 %  explicitely when a full udp datagram is received
 %  It reads the datagram, interprets as command string, and evaluates it
@@ -6,6 +6,8 @@ function datagramParser(Msng)
 % this function could logically be a private method of the Messenger class,
 % but that seems not to sit well with the instrument callback mechanism,
 % which IIUC evaluates it in the base workspace
+    goOn=true; % will become false if 'return' is received
+    
     if Msng.StreamResource.BytesAvailable>0
         stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes, fgetl no
     else
@@ -49,6 +51,9 @@ function datagramParser(Msng)
        out='';
        if ~isempty(M.Command)
            % this is an expensive way of dealing with either one output or none
+           if strcmp(M.Command,'return')
+               goOn=false; % will be used as harness to break the loop
+           end
            try
                if M.EvalInListener
                    out=eval(M.Command);

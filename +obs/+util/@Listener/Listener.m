@@ -85,25 +85,13 @@ classdef Listener < obs.LAST_Handle % a version of Messenger without callback
         end
         
         function delete(Msng)
-            % this is not called when clearing the object? Probably it is a
-            % NonDestructor, because it calls subproperties of .StreamResource
-            % Thus:
-            % M=obs.util.Messenger(....); M.connect; M.disconnect; clear M
-            %   and
-            % M=obs.util.Messenger(....); M.connect; delete(M)
-            %   correctly delete the udp resource (which disappears from instrfind), but
-            % M=obs.util.Messenger(....); M.connect; clear M
-            %    not. Why?
-            % Moreover, delete(instrfind) in the latter case enters this
-            %  destructor, which is odd.
+            % see the comments in the almost identical method of Messenger.
+            % Maybe, this time here it works.
             try
-                Msng.disconnect;
+                fclose(Msng.StreamResource);
                 delete(Msng.StreamResource); % doesn't delete it? I still see it in instrfind
             catch
                 Msng.reportError('cannot delete Messenger udp resource')
-                % this cannot be reported in Msng.LastError, nor the error
-                %  can contain more identifying information, because the
-                %  object is not anymore
             end
         end
         
