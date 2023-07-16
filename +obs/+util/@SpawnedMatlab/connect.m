@@ -57,6 +57,8 @@ function success=connect(S)
     end
     S.PID=S.Messenger.query('feature(''getpid'')');
 
+    hostname=char(java.net.InetAddress.getLocalHost.getHostName);
+    
     % create a second "Responder" messenger, for dual communication
     %  without intermixing of messages. If we are here the
     %  MasterMessenger should already be functioning
@@ -64,12 +66,12 @@ function success=connect(S)
     % attempt to disconnect the original spawner, if there is one:
     %  use the remote responder.
     if S.Messenger.query('exist(''MasterResponder'',''var'') && isa(MasterResponder,''obs.util.Messenger'')')
-        [~,hostname]=system('hostname');
         msg=sprintf('PID %d on %s is now taking control of the spawned session',...
                 feature('getpid'),hostname(1:end-1));
         % can we also find out the .Id of the spawned session on the originator?
-        S.Messenger.send(sprintf('MasterResponder.send(''disp(''''%s'''')'')',...
-            msg))
+        S.Messenger.send(sprintf('disp(''%s'')',msg))
+%         S.Messenger.send(sprintf('MasterResponder.send(''disp(''''%s'''')'')',...
+%             msg))
         % and now how do we know how the SpawnedMatlab object is called
         % there?
     end
@@ -86,8 +88,7 @@ function success=connect(S)
     % use the Messenger to create the remote Responder head. That may exist
     %  already in the remote session, but we recreate it anyway
     respondercommand = sprintf(['MasterResponder=obs.util.Messenger(''%s'',%d,%d);'...
-        'MasterResponder.connect;'],...
-        char(java.net.InetAddress.getLocalHost.getHostName),...
+        'MasterResponder.connect;'],hostname,...
         S.ResponderLocalPort,S.ResponderRemotePort);
     S.Messenger.query(respondercommand);
 
