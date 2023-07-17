@@ -23,7 +23,7 @@ function success=connect(S)
         S.ResponderRemotePort=9002;
     end
     
-    % create a listener messenger
+    % create a messenger for talking to the spawned session
     S.Messenger=obs.util.Messenger(S.Host,S.MessengerRemotePort,...
         S.MessengerLocalPort);
     if ~isempty(S.Id)
