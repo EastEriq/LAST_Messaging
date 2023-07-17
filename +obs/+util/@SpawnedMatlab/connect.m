@@ -65,6 +65,8 @@ function success=connect(S)
     
     % attempt to disconnect the original spawner, if there is one:
     %  use the remote responder.
+    % TODO: see that this works also for a
+    % RemoteMesssengerFlavor='listener'
     if S.Messenger.query('exist(''MasterResponder'',''var'') && isa(MasterResponder,''obs.util.Messenger'')')
         msg=sprintf('PID %d on %s is now taking control of the spawned session',...
                 feature('getpid'),hostname(1:end-1));
