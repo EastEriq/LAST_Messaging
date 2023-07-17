@@ -90,7 +90,8 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
             S.MessengerLocalPort,S.MessengerRemotePort);
     end
 
-    if strcmp(S.RemoteTerminal,'none') && ~strcmpi(S.RemoteMessengerFlavor,'listener')
+    if (isempty(S.RemoteTerminal) || strcmp(S.RemoteTerminal,'none')) ...
+        && ~strcmpi(S.RemoteMessengerFlavor,'listener')
         % if there is no window, put matlab in an infinite loop,
         %  otherwise it just quits after messengercommand is
         %  executed. This is not needed however if the remote messenger is
@@ -127,8 +128,9 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
             spawncommand = '';
             matlabcommand = 'matlab -nosplash -desktop -r ';
         otherwise
-            % 'none', or '', or anything else: silent: problems
-            %  with backrounding?
+            % 'none', or '', or anything else: silent, but will exit
+            %  as soon as the command passed finishes its execution.
+            % Easiest workaround, command an infinite loop, as done above
             spawncommand = '';
             matlabcommand = 'matlab -nosplash -nodesktop -r ';
     end
