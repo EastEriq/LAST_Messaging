@@ -10,7 +10,7 @@ function [Mpids,Rpids]=listeners(S)
     end
     
     if isa(S.Messenger,'obs.util.Messenger')
-        [~,a]=system(sprintf('rsh -o PasswordAuthentication=no %s %s "lsof -ti :%d"', ...
+        [~,a]=system(sprintf('rsh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
             user, S.Messenger.DestinationHost, S.Messenger.DestinationPort));
         Mpids=str2num(a);
     else
@@ -22,7 +22,7 @@ function [Mpids,Rpids]=listeners(S)
     
     if nargout>1
         if isa(S.Responder,'obs.util.Messenger')
-            [~,a]=system(sprintf('rsh -o PasswordAuthentication=no %s %s "lsof -ti :%d"', ...
+            [~,a]=system(sprintf('rsh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
                 user, S.Responder.DestinationHost, S.Responder.DestinationPort));
             Rpids=str2num(a);
         else

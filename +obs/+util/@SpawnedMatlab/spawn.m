@@ -24,31 +24,36 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
 
     if exist('host','var')
         S.Host=host;
-    elseif isempty(S.Host)
+    end
+    if isempty(S.Host)
         S.Host='localhost';
     end
 
     if exist('messengerlocalport','var')
         S.MessengerLocalPort=messengerlocalport;
-    elseif isempty(S.MessengerLocalPort)
+    end
+    if isempty(S.MessengerLocalPort)
         S.MessengerLocalPort=8001;
     end
 
     if exist('messengerremoteport','var')
         S.MessengerRemotePort=messengerremoteport;
-    elseif isempty(S.MessengerRemotePort)
+    end
+    if isempty(S.MessengerRemotePort)
         S.MessengerRemotePort=8002;
     end
 
     if exist('responderlocalport','var')
         S.ResponderLocalPort=responderlocalport;
-    elseif isempty(S.ResponderLocalPort)
+    end
+    if isempty(S.ResponderLocalPort)
         S.ResponderLocalPort=9001;
     end
 
     if exist('responderremoteport','var')
         S.ResponderRemotePort=responderremoteport;
-    elseif isempty(S.ResponderRemotePort)
+    end
+    if isempty(S.ResponderRemotePort)
         S.ResponderRemotePort=9002;
     end
 
