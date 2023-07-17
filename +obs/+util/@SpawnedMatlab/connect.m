@@ -69,7 +69,7 @@ function success=connect(S)
     % RemoteMesssengerFlavor='listener'
     if S.Messenger.query('exist(''MasterResponder'',''var'') && isa(MasterResponder,''obs.util.Messenger'')')
         msg=sprintf('PID %d on %s is now taking control of the spawned session',...
-                feature('getpid'),hostname(1:end-1));
+                feature('getpid'),hostname);
         % can we also find out the .Id of the spawned session on the originator?
         S.Messenger.send(sprintf('disp(''%s'')',msg))
 %         S.Messenger.send(sprintf('MasterResponder.send(''disp(''''%s'''')'')',...
