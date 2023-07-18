@@ -44,7 +44,8 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
             end
             if strcmp(resolvehost(Msng.DestinationHost,'address'),...
                             resolvehost('localhost','address'))
-               if ~isempty(LocalPort) && Msng.DestinationPort==LocalPort
+               if ~isempty(LocalPort) && ~isempty(Msng.DestinationPort) &&...
+                       Msng.DestinationPort==LocalPort
                  warning('using the same ports for messengers on the same host is not reccommended')
                end
             end
