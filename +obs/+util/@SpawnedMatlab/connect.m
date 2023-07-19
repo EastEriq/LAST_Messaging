@@ -63,20 +63,25 @@ function success=connect(S)
     %  without intermixing of messages. If we are here the
     %  MasterMessenger should already be functioning
     
-    % attempt to disconnect the original spawner, if there is one:
-    %  use the remote responder.
-    % TODO: see that this works also for a
-    % RemoteMessengerFlavor='listener'
+    % display a takeover message on the spawned session, and on the
+    %  original spawner
+    % TODO: see that this works also for a RemoteMessengerFlavor='listener'
     if S.Messenger.query('exist(''MasterResponder'',''var'') && isa(MasterResponder,''obs.util.Messenger'')')
         msg=sprintf('PID %d on %s is now taking control of the spawned session',...
                 feature('getpid'),hostname);
         % can we also find out the .Id of the spawned session on the originator?
         S.Messenger.send(sprintf('disp(''%s'')',msg))
-%         S.Messenger.send(sprintf('MasterResponder.send(''disp(''''%s'''')'')',...
-%             msg))
-        % and now how do we know how the SpawnedMatlab object is called
-        % there?
+        % use the old remote responder, to send the same takeover message
+        % to the original controller
+        S.Messenger.send(sprintf('MasterResponder.send(''disp(''''%s'''')'')',...
+             msg))
+        % it would be nice to include in the message also the name or the Id
+        %  of the spawned session that is being taken over, but how do we
+        %  know how the SpawnedMatlab object is called in the original
+        %  spawner?
     end
+    % in fact we are not really "taking over". With Message.From and
+    % .ReplyTo, anyone knowing DestinationPort can always send queries.
     
     % local Responder head
     S.Responder=obs.util.Messenger(S.Host,S.ResponderRemotePort,...
@@ -87,17 +92,18 @@ function success=connect(S)
         S.Responder.Id='spawn.Responder';
     end
 
+    if ~S.Responder.connect % can fail if the local port is busy
+        S.reportError('remote Responder not answering. Consider terminating and respawning')
+    else
+        S.ResponderLocalPort=S.Responder.LocalPort; % in cause empty ->auto
+        success=true;
+    end
+    
     % use the Messenger to create the remote Responder head. That may exist
     %  already in the remote session, but we recreate it anyway
     respondercommand = sprintf(['MasterResponder=obs.util.Messenger(''%s'',%d,%d);'...
         'MasterResponder.connect;'],hostname,...
         S.ResponderLocalPort,S.ResponderRemotePort);
     S.Messenger.query(respondercommand);
-
-    if ~S.Responder.connect % can fail if the local port is busy
-        S.reportError('remote Responder not answering. Consider terminating and respawning')
-    else
-        success=true;
-    end
 
 end
