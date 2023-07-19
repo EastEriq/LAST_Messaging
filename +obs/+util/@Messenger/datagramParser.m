@@ -19,10 +19,14 @@ function datagramParser(Msng,~,Data)
                     num2str(Data.Data.DatagramPort) + " on " +...
                     datestr(Data.Data.AbsTime) +'\n')
    end
+   get(Msng.StreamResource)
    
    % reconstruct the incoming Message
    M=obs.util.Message(stream);
-   % fill in some fields at reception
+   % fill in some fields at reception: with udp objects we have the origin
+   %  address only if the function is called as a callback. Perhaps with
+   %  udpport objects we would have it more naturally from the result of
+   %  read()?
    if nargin==3
        M.From=[Data.Data.DatagramAddress ':' num2str(Data.Data.DatagramPort)];
        M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
@@ -62,6 +66,9 @@ function datagramParser(Msng,~,Data)
    end
    try
        if M.RequestReply
+           % change Msng properties according to the origin of the message
+           [Msng.RemoteHost,remain]=strtok(M.From,':');
+           Msng.RemotePort=num2str(strrep(remain,':',''));
            % send back a message with output in .Content and empty .Command
            Msng.reply(jsonencode(out,'ConvertInfAndNaN',false));
            % note: found a corner case for which jsonencode is erroneously

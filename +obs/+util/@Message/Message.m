@@ -1,7 +1,7 @@
 classdef Message <handle
     
     properties
-        From='';
+        From=''; % for now char array originhost:port. Consider making a structure
         % ReplyTo='';
         % Destination='';
         SentTimestamp=[]; % time at which the message is sent, filled by the sending Messenger

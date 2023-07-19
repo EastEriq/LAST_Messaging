@@ -32,10 +32,7 @@ function goOn=datagramParser(Msng)
    % reconstruct the incoming Message
    M=obs.util.Message(stream);
    % fill in some fields at reception
-   if nargin==3
-       M.From=[Data.DatagramAddress ':' num2str(Data.DatagramPort)];
-       M.ReceivedTimestamp=datenum(Data.AbsTime);
-   end
+   M.ReceivedTimestamp=datenum(Data.AbsTime);
    
    % Store the message received, so that the process can access it.
    %  E.g. to check for a reply to a query
@@ -74,6 +71,9 @@ function goOn=datagramParser(Msng)
    end
    try
        if M.RequestReply
+           % change Msng properties according to the origin of the message
+           [Msng.RemoteHost,remain]=strtok(M.From,':');
+           Msng.RemotePort=num2str(strrep(remain,':',''));
            % send back a message with output in .Content and empty .Command
            Msng.reply(jsonencode(out,'ConvertInfAndNaN',false));
            % note: found a corner case for which jsonencode is erroneously
