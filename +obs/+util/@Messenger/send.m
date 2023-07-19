@@ -25,8 +25,15 @@ function send(Msng,command,requestReply,evalInListener)
 
    % fill all the other fields of the message
    localhostname=char(java.net.InetAddress.getLocalHost.getHostName);
-   % consider evolving .From into a structure
-   M.From=sprintf('%s:%d',localhostname,Msng.LocalPort);
+   M.From.Host=localhostname;
+   M.From.Port=Msng.LocalPort;
+   % for now; decide a policy for supplying a different ReplyTo later
+   if isempty(M.ReplyTo.Host)
+       M.ReplyTo.Host=M.From.Host;
+   end
+   if isempty(M.ReplyTo.Port)
+       M.ReplyTo.Port=M.From.Port;
+   end
    M.SentTimestamp=now;
    M.RequestReply=requestReply;
    M.EvalInListener=evalInListener;

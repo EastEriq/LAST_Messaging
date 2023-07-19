@@ -1,8 +1,8 @@
 classdef Message <handle
     
     properties
-        From=''; % for now char array originhost:port. Consider making a structure
-        % ReplyTo='';
+        From=struct('Host','','Port',[]);
+        ReplyTo=struct('Host','','Port',[]);
         % Destination='';
         SentTimestamp=[]; % time at which the message is sent, filled by the sending Messenger
         ReceivedTimestamp=[]; % time at which the message is received, filled by the listeniner

@@ -19,22 +19,34 @@ function datagramParser(Msng,~,Data)
                     num2str(Data.Data.DatagramPort) + " on " +...
                     datestr(Data.Data.AbsTime) +'\n')
    end
-   get(Msng.StreamResource)
    
    % reconstruct the incoming Message
-   M=obs.util.Message(stream);
+   try
+       M=obs.util.Message(stream);
+   catch
+       Msng.reportError('stream "%s"received is not a valid message!',stream)
+       return
+   end
    % fill in some fields at reception: with udp objects we have the origin
    %  address only if the function is called as a callback. Perhaps with
    %  udpport objects we would have it more naturally from the result of
    %  read()?
    if nargin==3
-       M.From=[Data.Data.DatagramAddress ':' num2str(Data.Data.DatagramPort)];
+       M.From.Host=Data.Data.DatagramAddress;
+       M.From.Port=Data.Data.DatagramPort;
        M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
    end
    
    % Store the message received, so that the process can access it.
    %  E.g. to check for a reply to a query
    Msng.LastMessage=M;
+
+   if isempty(M.ReplyTo.Host)
+       M.ReplyTo.Host=M.From.Host;
+   end
+   if isempty(M.ReplyTo.Port)
+       M.ReplyTo.Port=M.From.Port;
+   end
    
    % try to execute the command. Could use evalc() instead of eval to retrieve
    %  an eventual output in some way. Out=eval() alone would error on
@@ -61,14 +73,15 @@ function datagramParser(Msng,~,Data)
             end
        end
    catch
-       Msng.reportError('illegal messenger command "%s" received from %s',...
-                                M.Command,M.From);
+        Msng.reportError('illegal messenger command "%s" received from %s:%d',...
+            M.Command,M.From.Host,M.From.Port);
    end
+
    try
        if M.RequestReply
            % change Msng properties according to the origin of the message
-           [Msng.RemoteHost,remain]=strtok(M.From,':');
-           Msng.RemotePort=num2str(strrep(remain,':',''));
+           Msng.DestinationHost=M.ReplyTo.Host;
+           Msng.DestinationPort=M.ReplyTo.Port;
            % send back a message with output in .Content and empty .Command
            Msng.reply(jsonencode(out,'ConvertInfAndNaN',false));
            % note: found a corner case for which jsonencode is erroneously
