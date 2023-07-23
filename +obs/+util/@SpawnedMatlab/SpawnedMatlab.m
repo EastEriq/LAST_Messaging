@@ -3,7 +3,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
     % communication
 
     properties
-        Host  % the host on which to spawn a new matlab session
+        Host  = 'localhost';% the host on which to spawn a new matlab session
         RemoteUser=''; % username for connecting to a remote host. Empty if same user
         RemoteTerminal char ='xterm'; % 'xterm' | 'gnome-terminal' | 'desktop' | 'none'
         RemoteMessengerFlavor char = 'messenger' % 'messenger' | 'listener'
@@ -12,10 +12,10 @@ classdef SpawnedMatlab < obs.LAST_Handle
     end
     
     properties (Hidden)
-        MessengerLocalPort % udp port on the origin computer
-        MessengerRemotePort % udp port on the destinaton host
-        ResponderLocalPort % udp port on the origin computer
-        ResponderRemotePort % udp port on the destinaton host
+        MessengerLocalPort uint16 =[]; % udp port on the origin computer
+        MessengerRemotePort uint16 = 8002; % udp port on the destinaton host
+        ResponderLocalPort  uint16 =[]; % udp port on the origin computer
+        ResponderRemotePort uint16 = 9002; % udp port on the destinaton host
     end
 
     properties (SetAccess=private)
@@ -43,6 +43,10 @@ classdef SpawnedMatlab < obs.LAST_Handle
 
         % destructor
         function delete(S)
+            % here we could consider to just .disconnect, if we wanted to
+            %  leave the slave available for reconnection from another
+            %  master. For the moment, let's cleanly finish both master and
+            %  slave
             S.terminate
             if ~isempty(S.Responder)
                 S.Responder.disconnect
@@ -76,7 +80,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
                     s='alive';
                 else
                     s='notresponding';
-                    %  if process doesn't exist anymore, then it the slave is dead
+                    %  if process doesn't exist anymore, then the slave is dead
                     pingcommand=['pidof MATLAB | grep ' num2str(S.PID)];
                     % not perfect, a short S.PID could match that of
                     %  another MATLAB process, but frankly it is pretty

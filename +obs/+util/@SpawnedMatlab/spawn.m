@@ -17,9 +17,14 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
     %       consequences.
 
     if ~isempty(S.PID)
-        S.reportError('PID exists, probably the slave has been already created')
-        S.report('  try .connect to attempt reconnecting\n')
-        return
+        S.report('PID exists, probably the slave has been already created. Checking status.\n')
+        if ~strcmp(S.Status,'dead')
+            S.reportError('  A remote MATLAB session with that PID still exists.')
+            S.report('  Try .connect to attempt reconnecting\n')
+            return
+        else
+            S.report('The remote process disappeared. Proceeding with .spawn.\n')
+        end
     end
 
     if exist('host','var')
@@ -32,9 +37,6 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
     if exist('messengerlocalport','var')
         S.MessengerLocalPort=messengerlocalport;
     end
-    if isempty(S.MessengerLocalPort)
-        S.MessengerLocalPort=8001;
-    end
 
     if exist('messengerremoteport','var')
         S.MessengerRemotePort=messengerremoteport;
@@ -45,9 +47,6 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
 
     if exist('responderlocalport','var')
         S.ResponderLocalPort=responderlocalport;
-    end
-    if isempty(S.ResponderLocalPort)
-        S.ResponderLocalPort=9001;
     end
 
     if exist('responderremoteport','var')
@@ -91,12 +90,12 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
 
     if strcmpi(S.RemoteMessengerFlavor,'listener')
         messengercommand = ...
-            sprintf(['MasterMessenger=obs.util.Listener(''%s'',%d,%d);'...
+            sprintf(['MasterMessenger=obs.util.Listener(''%s'',[%d],%d);'...
             'MasterMessenger.start;'],localhostname,...
             S.MessengerLocalPort,S.MessengerRemotePort);
     else
         messengercommand = ...
-            sprintf(['MasterMessenger=obs.util.Messenger(''%s'',%d,%d);'...
+            sprintf(['MasterMessenger=obs.util.Messenger(''%s'',[%d],%d);'...
             'MasterMessenger.connect;'],localhostname,...
             S.MessengerLocalPort,S.MessengerRemotePort);
     end
