@@ -31,7 +31,7 @@ classdef Listener < obs.LAST_Handle % a version of Messenger without callback
             if exist('Host','var')
                 Msng.DestinationHost=Host;
             end
-            if exist('DestinationPort','var')
+            if exist('DestinationPort','var') && ~isempty(DestinationPort)
                 Msng.DestinationPort=DestinationPort;
             else
                 Msng.DestinationPort=50001;

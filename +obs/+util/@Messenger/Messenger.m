@@ -181,7 +181,7 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
             try
                 port=Msng.StreamResource.LocalPort;
             catch
-                Msng.reportError('could get LocalPort. StreamResource not created?')
+                Msng.reportError('could not get LocalPort. StreamResource not created?')
             end
         end
  
