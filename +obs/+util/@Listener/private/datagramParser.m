@@ -75,7 +75,7 @@ function goOn=datagramParser(Msng)
         %  can cause problems).
         % Errors in this command may cause infinite loops
         quotexpanded=replace(ME.message,'''','''''');
-        Msng.reply(sprintf('Msng.reportError(''%s'')',quotexpanded),false,true);
+        Msng.reply(sprintf('Msng.reportError(''%s'')',quotexpanded),true);
         % a simpler solution is to set out=ME, and return the ME structure
         %  as result. But the above .send bypasses sending the reply below?
         out=ME;
