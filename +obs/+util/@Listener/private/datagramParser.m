@@ -67,9 +67,18 @@ function goOn=datagramParser(Msng)
                 end
             end
         end
-    catch
-        Msng.reportError('illegal messenger command "%s" received from %s:%d',...
-            M.Command,M.From.Host,M.From.Port);
+   catch ME
+        Msng.reportError('illegal messenger command "%s" received from %s:%d\n  %s',...
+            M.Command,M.From.Host,M.From.Port,ME.message);
+        % attempt to command .reportError back in the caller. Beware of
+        %  possible side effects (for example, quotes in ME.message itself
+        %  can cause problems).
+        % Errors in this command may cause infinite loops
+        quotexpanded=replace(ME.message,'''','''''');
+        Msng.send(sprintf('Msng.reportError(''%s'')',quotexpanded),false,true);
+        % a simpler solution is to set out=ME, and return the ME structure
+        %  as result. But the above .send bypasses sending the reply below?
+        out=ME;
     end
 
     try
@@ -84,12 +93,15 @@ function goOn=datagramParser(Msng)
             %       tries to read the public focuser properties despite
             %       not requested. Go figure which bug.
         end
-    catch
-        Msng.reportError('problem encoding in json the result of command "%s"',...
+   catch ME
+       Msng.reportError('problem sending the json encoded result of command "%s"',...
             M.Command);
         if M.RequestReply
             % send back a message with Error! in .Content and empty .Command
-            Msng.reply('"Error!"'); % double quotes for json
+           Msng.reply(jsonencode(ME.message)); % double quotes for json
+           % TODO a bit more sophystication, like adding a field .Status
+           %  to the message, or sending back a command .reportError
+           %  for the receiving messenger (might become cumbersome)
         end
     end
 end
