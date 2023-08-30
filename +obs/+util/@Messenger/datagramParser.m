@@ -80,7 +80,8 @@ function datagramParser(Msng,~,Data)
         %  can cause problems).
         % Errors in this command may cause infinite loops
         quotexpanded=replace(ME.message,'''','''''');
-        Msng.send(sprintf('Msng.reportError(''%s'')',quotexpanded),false,true);
+        Msng.send(sprintf('Msng.reportError(''receiver reports: %s'')',...
+                  quotexpanded),false,true);
         % a simpler solution is to set out=ME, and return the ME structure
         %  as result. But the above .send bypasses sending the reply below?
         out=ME;

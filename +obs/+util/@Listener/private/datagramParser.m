@@ -75,17 +75,11 @@ function goOn=datagramParser(Msng)
         %  can cause problems).
         % Errors in this command may cause infinite loops
         quotexpanded=replace(ME.message,'''','''''');
-        % FIXME. This seems to work for Messenger, not for Listener.
-        %  Strangely the error reported at the receiver end is
-        %    Error using jsondecode
-        %    JSON syntax error at line 1, column 1 (character 1): expected value but found 'Msng'.
-        %    Error in obs.util.Messenger/query (line 53)
-        %            resp=jsondecode(Msng.LastMessage.Content);
-        %  but it appears only when not debugging
-        % Msng.reply(sprintf('Msng.reportError(''%s'')',quotexpanded),true);
+        Msng.send(sprintf('Msng.reportError(''receiver reports: %s'')',...
+                  quotexpanded),false,true);
         % a simpler solution is to set out=ME, and return the ME structure
         %  as result. But the above .send bypasses sending the reply below?
-        out=quotexpanded;
+        out=ME;
     end
 
     try
