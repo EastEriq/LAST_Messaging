@@ -79,14 +79,7 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
         loggingpipe = '';
     end
 
-     % java trick to get the hostname, from matlabcentral
-    localhostname=char(java.net.InetAddress.getLocalHost.getHostName);
-    % LAST machines don't have a DNS and know only about their names.
-    % Using IP may be an option, but I'm not sure that udp ports from a
-    % last machine to an IP address can be opened in matlab without some
-    % proxy setting.
-    % [~,localhostname]=system('export LOCALE C; hostname -I');
-    % localhostname=strtrim(localhostname);
+    localhostname=S.localHostName;
 
     if strcmpi(S.RemoteMessengerFlavor,'listener')
         messengercommand = ...

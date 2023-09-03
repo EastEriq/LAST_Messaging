@@ -24,7 +24,7 @@ function send(Msng,command,requestReply,evalInListener)
     end
 
    % fill all the other fields of the message
-   localhostname=char(java.net.InetAddress.getLocalHost.getHostName);
+   localhostname=Msng.LocalHost;
    M.From.Host=localhostname;
    M.From.Port=Msng.LocalPort;
    % for now; decide a policy for supplying a different ReplyTo later

@@ -6,8 +6,6 @@ function resp=getMyAttention(Msng)
 %  elsewhere
 % We evaluate in the remote datagramParser, but the settings of the
 %  StreamResource are globally visible
-     % java trick to get the hostname, from matlabcentral
-    localhostname=char(java.net.InetAddress.getLocalHost.getHostName);
-    send(Msng,['Msng.DestinationHost=''' localhostname ''';'],false,true);
+    send(Msng,['Msng.DestinationHost=''' Msng.LocalHost ''';'],false,true);
     send(Msng,['Msng.DestinationPort=' num2str(Msng.LocalPort) ';'],false,true);
     resp=Msng.areYouThere;

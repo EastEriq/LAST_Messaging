@@ -24,7 +24,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
         Messenger % the messenger between the master and the slave. Created upon .connect
         Responder % the messenger between the slave and the master. Created upon .connect
     end
-
+    
     methods
         % creator
         function S=SpawnedMatlab(id)
@@ -37,7 +37,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
             if ~isempty(id)
                 S.Id=id;
             end
-             % load configuration
+            % load configuration
             S.loadConfig(S.configFileName('create'))
         end
 

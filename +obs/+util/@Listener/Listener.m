@@ -14,7 +14,11 @@ classdef Listener < obs.LAST_Handle % a version of Messenger without callback
         LastMessage % storing the last received message, to implement query responses
     end
     
-    methods % creator and destructor (NonDestructor because of udp?)
+    properties (SetAccess=private, Hidden, Transient)
+        LocalHost char;
+    end
+
+   methods % creator and destructor (NonDestructor because of udp?)
         
         function Msng=Listener(Host,DestinationPort,LocalPort,Name)
         % Messenger channel creator, with optional arguments
@@ -28,6 +32,7 @@ classdef Listener < obs.LAST_Handle % a version of Messenger without callback
         %  channel is between processes running on the same computer
         % Name: free text name (default:
         %   'localhost:LocalPort->Host:DestinationPort')
+            Msng.LocalHost=Msng.localHostName;
             if exist('Host','var')
                 Msng.DestinationHost=Host;
             end

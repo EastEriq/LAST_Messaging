@@ -15,6 +15,10 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
         CallbackRespond=true; % the datagramParser callback processes incoming commands. If false, incoming data must be explicitely read!
     end
     
+    properties (SetAccess=private, Hidden, Transient)
+        LocalHost char;
+    end
+
     methods % creator and destructor (NonDestructor because of udp?)
         
         function Msng=Messenger(Host,DestinationPort,LocalPort,Name)
@@ -29,6 +33,7 @@ classdef Messenger < obs.LAST_Handle % not of class handle, if has to have a pri
         %  channel is between processes running on the same computer
         % Name: free text name (default:
         %   'localhost:LocalPort->Host:DestinationPort')
+            Msng.LocalHost=Msng.localHostName;
             if exist('Host','var')
                 Msng.DestinationHost=Host;
             end
