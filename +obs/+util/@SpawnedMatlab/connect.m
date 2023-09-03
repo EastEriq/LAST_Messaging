@@ -57,8 +57,8 @@ function success=connect(S)
     end
     S.PID=S.Messenger.query('feature(''getpid'')');
 
-    hostname=char(java.net.InetAddress.getLocalHost.getHostName);
-    
+    hostname=S.localHostName;
+
     % create a second "Responder" messenger, for dual communication
     %  without intermixing of messages. If we are here the
     %  MasterMessenger should already be functioning

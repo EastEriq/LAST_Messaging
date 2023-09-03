@@ -6,7 +6,7 @@ function reply(Msng,content,evalInListener)
     end
 
     R=obs.util.Message;
-    R.From.Host=char(java.net.InetAddress.getLocalHost.getHostName);
+    R.From.Host=Msng.localHostName;
     R.From.Port=Msng.LocalPort;
     R.SentTimestamp=now;
     R.RequestReply=false;
