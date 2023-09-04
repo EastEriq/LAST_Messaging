@@ -220,9 +220,8 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
         return
     end
 
-    % create a listener messenger, and using it create the remote responder
-    if S.connect
-        
-    end
+    % create a MasterMessenger, and using it create the remote responder only
+    %  when connecting
+    % S.connect % separated
 
 end
