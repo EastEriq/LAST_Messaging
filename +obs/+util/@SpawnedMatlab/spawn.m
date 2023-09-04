@@ -106,16 +106,17 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
 
     % use xterm or gnome-terminal depending on which is
     %  installed sanely
+    spawncommand='export LC_CTYPE=en_US.UTF-8;';
     switch S.RemoteTerminal
         case 'xterm'
             xtitle=sprintf('-T "matlab_%s"',S.Id);
             % for X colors see e.g. https://en.wikipedia.org/wiki/X11_color_names
-            spawncommand=['xterm ' xtitle ,...
+            spawncommand=[spawncommand ' xterm ' xtitle ,...
                 ' -sb -bg aliceblue -fg black -cr blue', ...
                 ' -e '];
             matlabcommand = 'matlab -nosplash -nodesktop -r ';
         case 'gnome-terminal'
-            spawncommand='gnome-terminal -- bash -c ';
+            spawncommand=[spawncommand ' gnome-terminal -- bash -c '];
             if ~strcmp(S.Host,'localhost')
                 % dbus-launch needed for remore hosts, from
                 % https://unix.stackexchange.com/questions/407831/how-can-i-launch-gnome-terminal-remotely-on-my-headless-server-fails-to-launch
@@ -128,13 +129,11 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
             %  in full java glory
             % stdout will go to the window and not to the pipe
             %  anyway, the eventual logfile will remain empty
-            spawncommand = '';
             matlabcommand = 'matlab -nosplash -desktop -r ';
         otherwise
             % 'none', or '', or anything else: silent, but will exit
             %  as soon as the command passed finishes its execution.
             % Easiest workaround, command an infinite loop, as done above
-            spawncommand = '';
             matlabcommand = 'matlab -nosplash -nodesktop -r ';
     end
 
