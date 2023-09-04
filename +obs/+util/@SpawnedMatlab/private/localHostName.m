@@ -9,6 +9,6 @@ function localhostname=localHostName(S)
     % last machine to an IP address can be opened in matlab without some
     % proxy setting.
     [~,localhostname]=system('export LOCALE C; hostname -I');
-    localhostname=strtrim(localhostname);
+    localhostname=strtok(strtrim(localhostname)); % strtok to filter only the first address
     % OTOH, java.net.InetAddress.getLocalHost.getHostAddress returns only
-    %  12.0.0.1
+    %  127.0.0.1

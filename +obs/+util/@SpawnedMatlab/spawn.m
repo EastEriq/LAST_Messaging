@@ -79,7 +79,7 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
         loggingpipe = '';
     end
 
-    localhostname=S.localHostName;
+    localhostname=S.LocalHost;
 
     if strcmpi(S.RemoteMessengerFlavor,'listener')
         messengercommand = ...

@@ -25,6 +25,10 @@ classdef SpawnedMatlab < obs.LAST_Handle
         Responder % the messenger between the slave and the master. Created upon .connect
     end
     
+    properties (SetAccess=private, Hidden, Transient)
+        LocalHost char;
+    end
+
     methods
         % creator
         function S=SpawnedMatlab(id)
@@ -37,6 +41,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
             if ~isempty(id)
                 S.Id=id;
             end
+            S.LocalHost=S.localHostName;
             % load configuration
             S.loadConfig(S.configFileName('create'))
         end
@@ -47,7 +52,9 @@ classdef SpawnedMatlab < obs.LAST_Handle
             %  leave the slave available for reconnection from another
             %  master. For the moment, let's cleanly finish both master and
             %  slave
-            S.terminate
+            %S.terminate
+            S.report('just disconnecting, not terminating the remote session\n')
+            S.disconnect;
             if ~isempty(S.Responder)
                 S.Responder.disconnect
                 delete(S.Responder)
