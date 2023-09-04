@@ -8,7 +8,7 @@ function localhostname=localHostName(S)
     % Using IP may be an option, but I'm not sure that udp ports from a
     % last machine to an IP address can be opened in matlab without some
     % proxy setting.
-    [~,localhostname]=system('export LOCALE C; hostname -I');
+    [~,localhostname]=system('export LC_CTYPE=en_US.UTF-8; hostname -I');
     localhostname=strtok(strtrim(localhostname)); % strtok to filter only the first address
     % OTOH, java.net.InetAddress.getLocalHost.getHostAddress returns only
     %  127.0.0.1
