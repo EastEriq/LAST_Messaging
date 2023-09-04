@@ -3,7 +3,7 @@ classdef MessengerCommon < obs.LAST_Handle % a version of Messenger without call
     properties
         DestinationHost='localhost'; % Destination host. Named or IP. localhost valid
         DestinationPort=50001; % Port on the destination host
-        LocalPort=[]; % port on the local host. [] means let the system assign a free one
+        LocalPort; % port on the local host. Can be same as DestinationPort if DestinationHost is not localhost
         EnablePortSharing='on'; % if 'on', different processses on the same localhost can receive on the same port
         Name % free text, useful for labelling the Messenger object
         MessagesSent=0; % incrementing number of messages sent
@@ -33,19 +33,19 @@ classdef MessengerCommon < obs.LAST_Handle % a version of Messenger without call
         % Name: free text name (default:
         %   'localhost:LocalPort->Host:DestinationPort')
             Msng.LocalHost=Msng.localHostName;
-            
             if exist('Host','var')
                 Msng.DestinationHost=Host;
             end
-            
             if exist('DestinationPort','var') && ~isempty(DestinationPort)
                 Msng.DestinationPort=DestinationPort;
+            else
+                Msng.DestinationPort=50001;
             end
-            
             if exist('LocalPort','var')
                 Msng.LocalPort=LocalPort;
+            else
+                LocalPort=[]; % this means, let the system assign at random
             end
-            
             if strcmp(resolvehost(Msng.DestinationHost,'address'),...
                             resolvehost('localhost','address'))
                if ~isempty(LocalPort) && ~isempty(Msng.DestinationPort) &&...
