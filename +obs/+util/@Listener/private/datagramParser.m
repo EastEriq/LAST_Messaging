@@ -21,7 +21,8 @@ function goOn=datagramParser(Msng)
         % diagnostic echo
         if Msng.Verbose==2 % in truth so far I said that Verbose is a boolean
             Msng.report("received '" + stream + "' from " + ...
-                M.From.Host + ':' + M.From.Port + " on " +...
+                Msng.StreamResource.DatagramAddress + ':' + ...
+                Msng.StreamResource.DatagramPort + " on " +...
                 datestr(M.ReceivedTimestamp) +'\n')
         end
     catch
@@ -34,10 +35,10 @@ function goOn=datagramParser(Msng)
     Msng.LastMessage=M;
 
     if isempty(M.ReplyTo.Host)
-        M.ReplyTo.Host=M.From.Host;
+        M.ReplyTo.Host = Msng.StreamResource.DatagramAddress;
     end
     if isempty(M.ReplyTo.Port)
-        M.ReplyTo.Port=M.From.Port;
+        M.ReplyTo.Port = Msng.StreamResource.DatagramPort;
     end
 
     % try to execute the command. Could use evalc() instead of eval to retrieve

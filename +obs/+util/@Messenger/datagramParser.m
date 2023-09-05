@@ -32,8 +32,6 @@ function datagramParser(Msng,~,Data)
    %  udpport objects we would have it more naturally from the result of
    %  read()?
    if nargin==3
-       M.From.Host=Data.Data.DatagramAddress;
-       M.From.Port=Data.Data.DatagramPort;
        M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
    end
    
@@ -41,12 +39,12 @@ function datagramParser(Msng,~,Data)
    %  E.g. to check for a reply to a query
    Msng.LastMessage=M;
 
-   if isempty(M.ReplyTo.Host)
-       M.ReplyTo.Host=M.From.Host;
-   end
-   if isempty(M.ReplyTo.Port)
-       M.ReplyTo.Port=M.From.Port;
-   end
+    if isempty(M.ReplyTo.Host)
+        M.ReplyTo.Host = Msng.StreamResource.DatagramAddress;
+    end
+    if isempty(M.ReplyTo.Port)
+        M.ReplyTo.Port = Msng.StreamResource.DatagramPort;
+    end
    
    % try to execute the command. Could use evalc() instead of eval to retrieve
    %  an eventual output in some way. Out=eval() alone would error on

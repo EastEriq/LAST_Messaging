@@ -20,8 +20,7 @@ COMMAND=$3
 TIMESTAMP=739107.64072227245 # read a compatible timestamp, but not really important
 LOCALPORT=55555 # or better, find the port used by nc
 
-JSTRING=`echo '{"From":{"Host":"localhost","Port":'$LOCALPORT'},'\
-              '"ReplyTo":{"Host":"localhost","Port":'$LOCALPORT'},'\
+JSTRING=`echo '{"ReplyTo":{"Host":"localhost","Port":'$LOCALPORT'},'\
               '"SentTimestamp":'\$TIMESTAMP',"ReceivedTimestamp":[],'\
               '"ProgressiveNumber":2,"Command":"'$COMMAND'",'\
               '"RequestReply":true,"Content":[],"EvalInListener":false}'`
@@ -29,3 +28,4 @@ JSTRING=`echo '{"From":{"Host":"localhost","Port":'$LOCALPORT'},'\
 #echo $JSTRING
 
 echo $JSTRING | nc -uC -W 1 -q 1 -w 2 -p $LOCALPORT $HOST $PORT
+echo

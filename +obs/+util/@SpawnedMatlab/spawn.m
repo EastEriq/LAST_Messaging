@@ -60,9 +60,9 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
     [Mpids,Rpids]=S.listeners;
     if ~isempty(Mpids) || ~isempty(Rpids)
         p=unique([Mpids(:),Rpids(:)]);
-        S.reportError('destination ports already used by processes %s',...
-            num2str(p))
-        S.reportError('probably you want to .connect instead, or to kill these processes first')
+        S.reportError('destination ports already used by PID %s on %s',...
+            num2str(p),S.Host)
+        S.reportError('maybe .connect instead? if not, kill these processes first')
         return
     end
 
