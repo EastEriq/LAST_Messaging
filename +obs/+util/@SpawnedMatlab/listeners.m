@@ -10,14 +10,14 @@ function [Mpids,Rpids]=listeners(S)
     end
     
     if isa(S.Messenger,'obs.util.Messenger')
-        [~,a]=system(sprintf('rsh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
+        [~,a]=system(sprintf('ssh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
             user, S.Messenger.DestinationHost, S.Messenger.DestinationPort));
     else
         if isempty(S.Messenger)
             % if the Messenger has not yet been created, check using the
             %  values of the relevant properties known to the SpawnedMatlab
             %  object itself
-            [~,a]=system(sprintf('rsh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
+            [~,a]=system(sprintf('ssh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
                 user, S.Host, S.MessengerRemotePort));
         else
             S.reportError('.Messenger is not a messenger')
@@ -28,11 +28,11 @@ function [Mpids,Rpids]=listeners(S)
     
     if nargout>1
         if isa(S.Responder,'obs.util.Messenger')
-            [~,a]=system(sprintf('rsh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
+            [~,a]=system(sprintf('ssh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
                 user, S.Responder.DestinationHost, S.Responder.DestinationPort));
         else
             if isempty(S.Responder)
-            [~,a]=system(sprintf('rsh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
+            [~,a]=system(sprintf('ssh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
                 user, S.Host, S.ResponderRemotePort));
             else
                 S.reportError('.Responder is not a messenger')
