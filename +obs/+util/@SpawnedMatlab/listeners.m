@@ -32,8 +32,8 @@ function [Mpids,Rpids]=listeners(S)
                 user, S.Responder.DestinationHost, S.Responder.DestinationPort));
         else
             if isempty(S.Responder)
-            [~,a]=system(sprintf('ssh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
-                user, S.Host, S.ResponderRemotePort));
+                [~,a]=system(sprintf('ssh -o PasswordAuthentication=no %s%s "lsof -ti :%d"', ...
+                    user, S.Host, S.ResponderRemotePort));
             else
                 S.reportError('.Responder is not a messenger')
                 a='';
