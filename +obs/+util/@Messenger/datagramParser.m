@@ -21,16 +21,30 @@ function datagramParser(Msng,~,Data)
    end
    
    % reconstruct the incoming Message
-   M=obs.util.Message(stream);
-   % fill in some fields at reception
+   try
+       M=obs.util.Message(stream);
+   catch
+       Msng.reportError('stream "%s"received is not a valid message!',stream)
+       return
+   end
+   % fill in some fields at reception: with udp objects we have the origin
+   %  address only if the function is called as a callback. Perhaps with
+   %  udpport objects we would have it more naturally from the result of
+   %  read()?
    if nargin==3
-       M.From=[Data.Data.DatagramAddress ':' num2str(Data.Data.DatagramPort)];
        M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
    end
    
    % Store the message received, so that the process can access it.
    %  E.g. to check for a reply to a query
    Msng.LastMessage=M;
+
+    if isempty(M.ReplyTo.Host)
+        M.ReplyTo.Host = Msng.StreamResource.DatagramAddress;
+    end
+    if isempty(M.ReplyTo.Port)
+        M.ReplyTo.Port = Msng.StreamResource.DatagramPort;
+    end
    
    % try to execute the command. Could use evalc() instead of eval to retrieve
    %  an eventual output in some way. Out=eval() alone would error on
@@ -56,12 +70,26 @@ function datagramParser(Msng,~,Data)
                end
             end
        end
-   catch
-       Msng.reportError('illegal messenger command "%s" received from %s',...
-                                M.Command,M.From);
+   catch ME
+        Msng.reportError('illegal messenger command "%s" received from %s:%d\n  %s',...
+            M.Command,M.From.Host,M.From.Port,ME.message);
+        % attempt to command .reportError back in the caller. Beware of
+        %  possible side effects (for example, quotes in ME.message itself
+        %  can cause problems).
+        % Errors in this command may cause infinite loops
+        quotexpanded=replace(ME.message,'''','''''');
+        Msng.send(sprintf('Msng.reportError(''receiver reports: %s'')',...
+                  quotexpanded),false,true);
+        % a simpler solution is to set out=ME, and return the ME structure
+        %  as result. But the above .send bypasses sending the reply below?
+        out=ME;
    end
+
    try
        if M.RequestReply
+           % change Msng properties according to the origin of the message
+           Msng.DestinationHost=M.ReplyTo.Host;
+           Msng.DestinationPort=M.ReplyTo.Port;
            % send back a message with output in .Content and empty .Command
            Msng.reply(jsonencode(out,'ConvertInfAndNaN',false));
            % note: found a corner case for which jsonencode is erroneously
@@ -69,12 +97,15 @@ function datagramParser(Msng,~,Data)
            %       tries to read the public focuser properties despite
            %       not requested. Go figure which bug.
        end
-   catch
-       Msng.reportError('problem encoding in json the result of command "%s"',...
+   catch ME
+       Msng.reportError('problem sending the json encoded result of command "%s"',...
                                 M.Command);
        if M.RequestReply
            % send back a message with Error! in .Content and empty .Command
-           Msng.reply('"Error!"'); % double quotes for json
+           Msng.reply(jsonencode(ME.message)); % double quotes for json
+           % TODO a bit more sophystication, like adding a field .Status
+           %  to the message, or sending back a command .reportError
+           %  for the receiving messenger (might become cumbersome)
        end
    end
 end

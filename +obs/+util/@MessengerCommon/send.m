@@ -24,7 +24,13 @@ function send(Msng,command,requestReply,evalInListener)
     end
 
    % fill all the other fields of the message
-   M.From=Msng.Name;
+   % for now; decide a policy for supplying a different ReplyTo later
+   if isempty(M.ReplyTo.Host)
+       M.ReplyTo.Host=Msng.LocalHost;
+   end
+   if isempty(M.ReplyTo.Port)
+       M.ReplyTo.Port=Msng.LocalPort;
+   end
    M.SentTimestamp=now;
    M.RequestReply=requestReply;
    M.EvalInListener=evalInListener;

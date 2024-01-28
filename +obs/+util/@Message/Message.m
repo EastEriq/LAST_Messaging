@@ -1,9 +1,7 @@
 classdef Message <handle
     
     properties
-        From='';
-        % ReplyTo='';
-        % Destination='';
+        ReplyTo=struct('Host','','Port',[]);
         SentTimestamp=[]; % time at which the message is sent, filled by the sending Messenger
         ReceivedTimestamp=[]; % time at which the message is received, filled by the listeniner
         ProgressiveNumber=[]; % ordinal number, set by the sending Messenger

@@ -9,8 +9,8 @@ function success=connect(Msng)
         end
         success = true;
     catch
-        Msng.LastError=['udp stream on ' Msng.DestinationHost  ':' ...
-                         num2str(Msng.DestinationPort) ' cannot be opened'];
+        Msng.reportError('udp stream on %s:%d cannot be opened',...
+            Msng.DestinationHost,Msng.DestinationPort);
     end
     
     % setup the receiver callback, if so required
