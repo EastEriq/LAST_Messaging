@@ -174,7 +174,7 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
         %  matlab windows, though it may be slow (expecially
         %  graphics in software OpenGL)
 
-       sshcommand=['ssh -o PasswordAuthentication=no -fCX ' user S.Host];
+       sshcommand=['ssh ' S.SshOptions ' -fCX ' user S.Host];
         % we try to capture the result code, to trap potential
         %  problems -- e.g. unreachable host, wrong user
 

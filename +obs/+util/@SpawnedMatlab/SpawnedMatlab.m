@@ -16,6 +16,10 @@ classdef SpawnedMatlab < obs.LAST_Handle
         MessengerRemotePort uint16 = 8002; % udp port on the destinaton host
         ResponderLocalPort  uint16 =[]; % udp port on the origin computer
         ResponderRemotePort uint16 = 9002; % udp port on the destinaton host
+        % ssh options: avoid asking for a password, shorten timeout, and
+        %  automatically accept instead of asking confirmation of
+        %  fingerprint
+        SshOptions char ='-o ConnectTimeout=5 -o PasswordAuthentication=no -o StrictHostKeyChecking=no';
     end
 
     properties (SetAccess=private)
@@ -98,8 +102,8 @@ classdef SpawnedMatlab < obs.LAST_Handle
                         else
                             user=[S.RemoteUser '@'];
                         end
-                        pingcommand=['ssh -o PasswordAuthentication=no' ...
-                                      user S.Host ' ' pingcommand];
+                        pingcommand=['ssh ' S.SshOptions ' ' ...
+                                     user S.Host ' ' pingcommand];
                     end
                     [result,~]=system(pingcommand); % to suppress output on stdout
                     if result
