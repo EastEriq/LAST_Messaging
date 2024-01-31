@@ -72,7 +72,8 @@ function datagramParser(Msng,~,Data)
        end
    catch ME
         Msng.reportError('illegal messenger command "%s" received from %s:%d\n  %s',...
-            M.Command,M.From.Host,M.From.Port,ME.message);
+            M.Command, Data.Data.DatagramAddress,...
+            Data.Data.DatagramPort, ME.message);
         % attempt to command .reportError back in the caller. Beware of
         %  possible side effects (for example, quotes in ME.message itself
         %  can cause problems).
