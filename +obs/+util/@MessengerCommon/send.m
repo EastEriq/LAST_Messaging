@@ -26,7 +26,7 @@ function send(Msng,command,requestReply,evalInListener)
    % fill all the other fields of the message
    % for now; decide a policy for supplying a different ReplyTo later
    if isempty(M.ReplyTo.Host)
-       M.ReplyTo.Host=Msng.LocalHost;
+       M.ReplyTo.Host=Msng.localHostName;
    end
    if isempty(M.ReplyTo.Port)
        M.ReplyTo.Port=Msng.LocalPort;
