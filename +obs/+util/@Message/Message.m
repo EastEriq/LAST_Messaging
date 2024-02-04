@@ -18,6 +18,7 @@ classdef Message <handle
             %  command or a structure which maps to all fields of the
             %  Message. The second case is useful for casting back
             %  json-flattened transmitted messages to Message objects
+            [~,M.ReplyTo.Host]=system('hostname -I');
             if exist('command','var')
                 if ischar(command)
                     try
