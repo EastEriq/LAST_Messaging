@@ -20,11 +20,12 @@ function terminate(S,killlisteners)
             S.Messenger.send('exit')
         end
 
+        thisPID=S.PID;
         % if the slave is dead/unresponsive, or send() times out, kill it
         if isempty(S.Messenger.LastError)
             S.PID=[];
             S.Status='disconnected';
-        elseif ~isempty(S.PID)
+        elseif ~isempty(thisPID)
             S.report(['graceful exit of slave session ' S.Id ...
                 ' timed out\n'])
         end
@@ -37,8 +38,11 @@ function terminate(S,killlisteners)
         S.PID=[];
         S.Status='disconnected';
 
-        pause(2); % tune time, give time to the session to exit
         [LM,LR]=S.listeners;
+        if ~isempty(thisPID)
+            LM(LM==thisPID)=[];
+            LR(LR==thisPID)=[];
+        end
         if ~isempty(LM)
             S.report('there are still processes listening on udp port %d\n',...
                 S.Messenger.DestinationPort)
