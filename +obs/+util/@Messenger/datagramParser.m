@@ -38,13 +38,15 @@ function datagramParser(Msng,~,Data)
    % Store the message received, so that the process can access it.
    %  E.g. to check for a reply to a query
    Msng.LastMessage=M;
-
-    if isempty(M.ReplyTo.Host)
-        M.ReplyTo.Host = Msng.StreamResource.DatagramAddress;
-    end
-    if isempty(M.ReplyTo.Port)
-        M.ReplyTo.Port = Msng.StreamResource.DatagramPort;
-    end
+   
+   % safeguard filling of M.ReplyTo if by mistake is not provided by the
+   %  sender
+   if isempty(M.ReplyTo.Host)
+       M.ReplyTo.Host = Data.Data.DatagramAddress;
+   end
+   if isempty(M.ReplyTo.Port)
+       M.ReplyTo.Port = Data.Data.DatagramPort;
+   end
    
    % try to execute the command. Could use evalc() instead of eval to retrieve
    %  an eventual output in some way. Out=eval() alone would error on

@@ -2,6 +2,11 @@ function goOn=datagramParser(Msng)
 % Variation of the Messenger callback function, here called instead
 %  explicitely when a full udp datagram is received
 %  It reads the datagram, interprets as command string, and evaluates it
+% Differently than the Messenger.datagramParser counterpart, here we don't
+%  have a Data argument, and Msng.StreamResource.DatagramAddress and Port
+%  are empty (matlab bug or feature?). In order to identify the provenance,
+%  we have to rely on the correctness of .ReplyTo fields in the incoming
+%  stream
 
     goOn=true; % will become false if 'return' is received
 
@@ -21,25 +26,18 @@ function goOn=datagramParser(Msng)
         % diagnostic echo
         if Msng.Verbose==2 % in truth so far I said that Verbose is a boolean
             Msng.report("received '" + stream + "' from " + ...
-                Msng.StreamResource.DatagramAddress + ':' + ...
-                Msng.StreamResource.DatagramPort + " on " +...
+                M.ReplyTo.Host + ':' + ...
+                num2str(M.ReplyTo.Port) + " on " +...
                 datestr(M.ReceivedTimestamp) +'\n')
         end
     catch
-        Msng.reportError('stream "%s"received is not a valid message!',stream)
+        Msng.reportError('stream "%s" received is not a valid message!',stream)
         return
     end
 
     % Store the message received, so that the process can access it.
     %  E.g. to check for a reply to a query
     Msng.LastMessage=M;
-
-    if isempty(M.ReplyTo.Host)
-        M.ReplyTo.Host = Msng.StreamResource.DatagramAddress;
-    end
-    if isempty(M.ReplyTo.Port)
-        M.ReplyTo.Port = Msng.StreamResource.DatagramPort;
-    end
 
     % try to execute the command. Could use evalc() instead of eval to retrieve
     %  an eventual output in some way. Out=eval() alone would error on
@@ -69,9 +67,9 @@ function goOn=datagramParser(Msng)
             end
         end
    catch ME
+       Msng.StreamResource
         Msng.reportError('illegal messenger command "%s" received from %s:%d\n  %s',...
-            M.Command, Data.Data.DatagramAddress,...
-            Data.Data.DatagramPort, ME.message);
+            M.Command, M.ReplyTo.Host, M.ReplyTo.Port, ME.message);
         % attempt to command .reportError back in the caller. Beware of
         %  possible side effects (for example, quotes in ME.message itself
         %  can cause problems).
