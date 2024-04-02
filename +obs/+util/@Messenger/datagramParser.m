@@ -41,10 +41,10 @@ function datagramParser(Msng,~,Data)
    
    % safeguard filling of M.ReplyTo if by mistake is not provided by the
    %  sender
-   if isempty(M.ReplyTo.Host)
+   if isempty(M.ReplyTo.Host) && nargin==3
        M.ReplyTo.Host = Data.Data.DatagramAddress;
    end
-   if isempty(M.ReplyTo.Port)
+   if isempty(M.ReplyTo.Port) && nargin==3
        M.ReplyTo.Port = Data.Data.DatagramPort;
    end
    
