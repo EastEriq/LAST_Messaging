@@ -67,7 +67,6 @@ function goOn=datagramParser(Msng)
             end
         end
    catch ME
-       Msng.StreamResource
         Msng.reportError('illegal messenger command "%s" received from %s:%d\n  %s',...
             M.Command, M.ReplyTo.Host, M.ReplyTo.Port, ME.message);
         % attempt to command .reportError back in the caller. Beware of
