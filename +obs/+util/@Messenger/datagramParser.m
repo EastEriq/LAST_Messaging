@@ -94,7 +94,7 @@ function datagramParser(Msng,~,Data)
            Msng.DestinationHost=M.ReplyTo.Host;
            Msng.DestinationPort=M.ReplyTo.Port;
            % send back a message with output in .Content and empty .Command
-           Msng.reply(jsonencode(out,'ConvertInfAndNaN',false));
+           Msng.reply(jsonencode(out,'ConvertInfAndNaN',false),M.ProgressiveNumber);
            % note: found a corner case for which jsonencode is erroneously
            %       verbose: unitCS.connect whith an unreachable focuser,
            %       tries to read the public focuser properties despite
@@ -105,7 +105,7 @@ function datagramParser(Msng,~,Data)
                                 M.Command);
        if M.RequestReply
            % send back a message with Error! in .Content and empty .Command
-           Msng.reply(jsonencode(ME.message)); % double quotes for json
+           Msng.reply(jsonencode(ME.message),M.ProgressiveNumber); % double quotes for json
            % TODO a bit more sophystication, like adding a field .Status
            %  to the message, or sending back a command .reportError
            %  for the receiving messenger (might become cumbersome)
