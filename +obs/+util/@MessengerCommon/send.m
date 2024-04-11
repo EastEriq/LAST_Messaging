@@ -1,4 +1,4 @@
-function nid=send(Msng,command,requestReply,evalInListener)
+function send(Msng,command,requestReply,evalInListener)
 % send a message through the Messenger channel
 % 
 % command: a string, containing a Matlab command, or
@@ -6,9 +6,6 @@ function nid=send(Msng,command,requestReply,evalInListener)
 % requestReply: boolean, if a reply is demanded (default false if omitted)
 % evalInListener: boolean, true for the special case of queries about the
 %                 Receiver (default false if omitted)
-% Optionally, the number of the sent message is returned, so that it can be
-%  compared to the answer received when queried, to make sure that there is
-%  no answer pileup
     if ~exist('requestReply','var')
         requestReply=false;
     end
@@ -40,7 +37,6 @@ function nid=send(Msng,command,requestReply,evalInListener)
    
    Msng.MessagesSent=Msng.MessagesSent+1;
    M.ProgressiveNumber=Msng.MessagesSent;
-   nid=M.ProgressiveNumber;
    
    % flatten it and dispatch it
    try

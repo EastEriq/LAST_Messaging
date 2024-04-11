@@ -10,7 +10,7 @@ function resp=query(Msng,command,evalInListener)
     end
 
     Msng.LastMessage=[];
-    nid=Msng.send(command,true,evalInListener);
+    Msng.send(command,true,evalInListener);
 
     if ~isempty(Msng.LastError)
         % if send() was problematic, don't expect a reply
@@ -33,7 +33,7 @@ function resp=query(Msng,command,evalInListener)
             %  the stream is completed by a terminator
         else
             % If we can't rely on the automatic callback (for instance
-            %  because query is already called by a non interruptible
+            %  because query is already called by a non interuptible
             %  callback, like that of a timer or a notify, let's sit here
             %  and check for incoming bytes (blocking). When the count stops
             %  increasing, call explicitely the listener function, which
@@ -49,9 +49,6 @@ function resp=query(Msng,command,evalInListener)
     end
     
     if ~isempty(Msng.LastMessage)
-        if nid ~=Msng.LastMessage.ProgressiveNumber
-            Msng.report('warning: the reply received may refer to another message\n')
-        end
         if ~isempty(Msng.LastMessage.Content)
             resp=jsondecode(Msng.LastMessage.Content);
         else
