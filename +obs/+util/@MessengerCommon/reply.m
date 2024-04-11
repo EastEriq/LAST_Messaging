@@ -8,7 +8,7 @@ function reply(Msng,content,nid)
     Msng.MessagesSent=Msng.MessagesSent+1;
     % if provided, fill the number of the original request, to help sorting
     %  out at reception, if the receiver has such a mechanism
-    if ~exist('nid','var')
+    if exist('nid','var')
         R.ProgressiveNumber=nid;
     else
         R.ProgressiveNumber=Msng.MessagesSent;

@@ -49,8 +49,9 @@ function resp=query(Msng,command,evalInListener)
     end
     
     if ~isempty(Msng.LastMessage)
-        if nid ~=Msng.LastMessage.ProgressiveNumber
-            Msng.report('warning: the reply received may refer to another message\n')
+        if nid ~= Msng.LastMessage.ProgressiveNumber
+            Msng.report('warning: reply #%d received for message #%d\n',...
+                Msng.LastMessage.ProgressiveNumber,nid)
         end
         if ~isempty(Msng.LastMessage.Content)
             resp=jsondecode(Msng.LastMessage.Content);
