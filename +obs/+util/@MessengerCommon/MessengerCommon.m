@@ -64,13 +64,18 @@ classdef MessengerCommon < obs.LAST_Handle % a version of Messenger without call
             % now create the corresponding udp object: first clean up
             %  leftovers,
             try
-                % try to delete a former udp object with the same destination
-                % (could also check for same name and local port, but that would be
-                %  more error prone, probably)
+                % try to delete former udp objects with the same destination
                 delete(instrfind('RemoteHost',Msng.DestinationHost,'RemotePort',Msng.DestinationPort))
             catch
                 Msng.reportError('cannot delete udp object %s:%d',...
                     Msng.DestinationHost, Msng.DestinationPort);
+            end
+            try
+                % try to delete a former udp objects with the same local port
+                delete(instrfind('LocalPort',Msng.LocalPort))
+            catch
+                Msng.reportError('cannot delete udp object with local port %d',...
+                    Msng.LocalPort);
             end
             % then create
             try
