@@ -21,7 +21,10 @@ function disconnect(S)
         S.reportError('object %s does not have a sane .Responder',S.Id)
     end
     
-    if isempty(S.Messenger.LastError) && isempty(S.Responder.LastError)
+    if   (isa(S.Messenger,'obs.util.Messenger') && isempty(S.Messenger.LastError) ||...
+             isempty(S.Messenger)) && ...
+            (isa(S.Responder,'obs.util.Messenger') && isempty(S.Responder.LastError) ||...
+             isempty(S.Responder))
         S.Status='disconnected';
     else
         S.reportError('cannot disconnect %s Messenger or Responder',S.Id)
