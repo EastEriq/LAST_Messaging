@@ -70,11 +70,11 @@ function success=connect(S)
         msg=sprintf('PID %d on %s is now taking control of the spawned session',...
                 feature('getpid'),hostname);
         % can we also find out the .Id of the spawned session on the originator?
-        S.Messenger.send(sprintf('disp(''%s'')',msg))
+        S.Messenger.send(sprintf('disp(''%s'')',msg));
         % use the old remote responder, to send the same takeover message
         % to the original controller
         S.Messenger.send(sprintf('MasterResponder.send(''disp(''''%s'''')'')',...
-             msg))
+             msg));
         % it would be nice to include in the message also the name or the Id
         %  of the spawned session that is being taken over, but how do we
         %  know how the SpawnedMatlab object is called in the original
