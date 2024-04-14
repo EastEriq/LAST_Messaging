@@ -17,7 +17,7 @@ function terminate(S,killlisteners)
         %  checking communication and getting a timeout without need.
         status=S.Status;
         if strcmp(status,'alive')
-            S.Messenger.send('exit')
+            S.Messenger.send('exit');
         end
 
         thisPID=S.PID;
