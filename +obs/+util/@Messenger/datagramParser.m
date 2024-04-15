@@ -6,33 +6,45 @@ function datagramParser(Msng,~,Data)
 % but that seems not to sit well with the instrument callback mechanism,
 % which IIUC evaluates it in the base workspace
     if Msng.StreamResource.BytesAvailable>0
+        if Msng.StreamResource.BytesAvailable>=Msng.StreamResource.InputBufferSize
+            Msng.reportError('%s input buffer overflow!',Msng.Id)
+        end
         stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes, fgetl no
     else
         Msng.reportError('udp input buffer for %s empty, nothing to process',...
                           Msng.Id)
         return
     end
-   % diagnostic echo
-   if Msng.Verbose==2 && nargin==3 % in truth so far I said that Verbose is a boolean
-       Msng.report("received '" + stream + "' from " + ...
-                    Data.Data.DatagramAddress + ':'+...
-                    num2str(Data.Data.DatagramPort) + " on " +...
-                    datestr(Data.Data.AbsTime) +'\n')
-   end
    
    % reconstruct the incoming Message
    try
        M=obs.util.Message(stream);
+       % fill in some fields at reception: with udp objects we have the origin
+       %  address only if the function is called as a callback. Perhaps with
+       %  udpport objects we would have it more naturally from the result of
+       %  read()?
+       if nargin==3
+           M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
+       else
+           M.ReceivedTimestamp=now;
+       end
+       % diagnostic echo from the message content
+       if Msng.Verbose==2 % in truth so far I said that Verbose is a boolean
+           Msng.report("received '" + stream + "' from " + ...
+               M.ReplyTo.Host + ':' + ...
+               num2str(M.ReplyTo.Port) + " in " +...
+               (M.ReceivedTimestamp-M.SentTimestamp)*86400000 +'msec\n')
+       end
    catch
-       Msng.reportError('stream "%s"received is not a valid message!',stream)
+       % diagnostic echo
+       if Msng.Verbose==2 && nargin==3 % in truth so far I said that Verbose is a boolean
+           Msng.report("received '" + stream + "' from " + ...
+               Data.Data.DatagramAddress + ':'+...
+               num2str(Data.Data.DatagramPort) + " on " +...
+               datestr(Data.Data.AbsTime) +'\n')
+       end
+       Msng.reportError('stream "%s" received is not a valid message!',stream)
        return
-   end
-   % fill in some fields at reception: with udp objects we have the origin
-   %  address only if the function is called as a callback. Perhaps with
-   %  udpport objects we would have it more naturally from the result of
-   %  read()?
-   if nargin==3
-       M.ReceivedTimestamp=datenum(Data.Data.AbsTime);
    end
    
    % Store the message received, so that the process can access it.

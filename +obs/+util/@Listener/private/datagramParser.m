@@ -11,6 +11,9 @@ function goOn=datagramParser(Msng)
     goOn=true; % will become false if 'return' is received
 
     if Msng.StreamResource.BytesAvailable>0
+        if Msng.StreamResource.BytesAvailable>=Msng.StreamResource.InputBufferSize
+            Msng.reportError('%s input buffer overflow!',Msng.Id)
+        end
         stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes, fgetl no
     else
         Msng.reportError('udp input buffer for %s empty, nothing to process',...
@@ -23,7 +26,8 @@ function goOn=datagramParser(Msng)
         M=obs.util.Message(stream);
         % fake the Data which would have been passed if callback
         M.ReceivedTimestamp=now;
-        % diagnostic echo
+        % diagnostic echo. This works if the stream is sane and allows to
+        %  reconstruct a sane Message, i.e. not if there is buffer overflow
         if Msng.Verbose==2 % in truth so far I said that Verbose is a boolean
             Msng.report("received '" + stream + "' from " + ...
                 M.ReplyTo.Host + ':' + ...

@@ -31,7 +31,7 @@ function terminate(S,killlisteners)
         end
 
         if ~isempty(S.PID)
-            S.report('attempting to kill slave process by PID %s\n',S.Id)
+            S.report('attempting to kill slave process %s by PID\n',S.Id)
             S.kill
         end
 
