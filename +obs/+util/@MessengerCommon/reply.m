@@ -16,4 +16,11 @@ function reply(Msng,content,nid)
 
     % flatten it and dispatch it
     flat=jsonTruncate(Msng,R);
-    fwrite(Msng.StreamResource,flat);
+    try
+        % I've seen thhis failing on startup of a blind slave, which is
+        %  already interrogated by a monitor - maybe because the
+        %  Streamresource is not yet set?
+        fwrite(Msng.StreamResource,flat);
+    catch
+        Msng.reportError('cannot write to .StreamResource')
+    end
