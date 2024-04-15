@@ -5,9 +5,22 @@ function datagramParser(Msng,~,Data)
 % this function could logically be a private method of the Messenger class,
 % but that seems not to sit well with the instrument callback mechanism,
 % which IIUC evaluates it in the base workspace
+
     if Msng.StreamResource.BytesAvailable>0
         if Msng.StreamResource.BytesAvailable>=Msng.StreamResource.InputBufferSize
-            Msng.reportError('%s input buffer overflow!',Msng.Id)
+            % flush the whole buffer, because in principle the overwritten
+            %  messages in it could contain corrupted commands. In practice,
+            %  instead, one finds in it many usable messages and some
+            %  truncated ones. We could try to decode each one of them in a
+            %  loop instead.
+            Msng.reportError('%s input buffer overflow! Flushing it',Msng.Id)
+            %  fclose(Msng.StreamResource);
+            %  fopen(Msng.StreamResource);
+            % flushinput doesn't remove pending callbacks for the terminators
+            %  received - the function may be called again several times
+            %  while the stream has been emptied.
+            flushinput(Msng.StreamResource)
+            return
         end
         stream=char(fread(Msng.StreamResource)'); % fread allows longer than 128 bytes, fgetl no
     else
@@ -108,7 +121,7 @@ function datagramParser(Msng,~,Data)
            % send back a message with output in .Content and empty .Command
            Msng.reply(jsonencode(out,'ConvertInfAndNaN',false),M.ProgressiveNumber);
            % note: found a corner case for which jsonencode is erroneously
-           %       verbose: unitCS.connect whith an unreachable focuser,
+           %       verbose: unitCS.connect with an unreachable focuser,
            %       tries to read the public focuser properties despite
            %       not requested. Go figure which bug.
        end
