@@ -17,12 +17,11 @@ function reply(Msng,content,nid)
     % flatten it and dispatch it
     flat=jsonTruncate(Msng,R);
     try
-        % I've seen thhis failing on startup of a blind slave, which is
+        % I've seen this failing on startup of a blind slave, which is
         %  already interrogated by a monitor - maybe because the
         %  Streamresource is not yet set?
         % ???? access once to avoid that Msng.DestinationHost becomes
         %  '{obs.util.Listener}' if running in a headless slave ???
-        %a=R.ReplyTo.Host;
         Msng.StreamResource.RemoteHost=R.ReplyTo.Host;
         fwrite(Msng.StreamResource,flat);
     catch
