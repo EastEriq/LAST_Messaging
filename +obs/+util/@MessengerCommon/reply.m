@@ -20,7 +20,11 @@ function reply(Msng,content,nid)
         % I've seen thhis failing on startup of a blind slave, which is
         %  already interrogated by a monitor - maybe because the
         %  Streamresource is not yet set?
+        % ???? access once to avoid that Msng.DestinationHost becomes
+        %  '{obs.util.Listener}' if running in a headless slave ???
+        a=R.ReplyTo.Host;
         fwrite(Msng.StreamResource,flat);
     catch
-        Msng.reportError('cannot write to .StreamResource')
+        Msng.reportError('cannot write to .StreamResource [%s,%d]',...
+            Msng.StreamResource.RemoteHost,Msng.StreamResource.RemotePort)
     end

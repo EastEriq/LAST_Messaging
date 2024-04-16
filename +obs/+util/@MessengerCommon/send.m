@@ -30,6 +30,7 @@ function nid=send(Msng,command,requestReply,evalInListener)
         M=command;
     else
         Msng.reportError('%s: wrong type of message to send',Msng.Name)
+        nid=[];
         return
     end
 
