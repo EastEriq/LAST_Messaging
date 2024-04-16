@@ -49,7 +49,8 @@ function resp=query(Msng,command,evalInListener)
     end
     
     if ~isempty(Msng.LastMessage)
-        if nid ~= Msng.LastMessage.ProgressiveNumber
+        if ~isempty(Msng.LastMessage.ProgressiveNumber) && ...
+            nid ~= Msng.LastMessage.ProgressiveNumber
             Msng.report('warning: reply #%d received for message #%d\n',...
                 Msng.LastMessage.ProgressiveNumber,nid)
         end
