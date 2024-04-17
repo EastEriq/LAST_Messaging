@@ -46,6 +46,15 @@ function nid=send(Msng,command,requestReply,evalInListener)
    
    nid=M.ProgressiveNumber;
    
+   % set the default destination on .StreamResource (could have been changed
+   %  by a previous off-channel message requesting a reply)
+   try
+       Msng.StreamResource.RemoteHost=Msng.DestinationHost;
+       Msng.StreamResource.RemotePort=Msng.DestinationPort;
+   catch
+       Msng.reportError('cannot change .StreamResource to the default destination')
+   end
+   
    % flatten it and dispatch it
    try
        flat=jsonTruncate(Msng,M);

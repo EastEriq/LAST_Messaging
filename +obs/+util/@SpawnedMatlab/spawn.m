@@ -17,10 +17,11 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
     %       consequences.
 
     if ~isempty(S.PID)
-        S.report('PID exists, probably the slave has been already created. Checking status.\n')
+        S.report('PID=%d exists, probably the slave has been already created. Checking status.\n',...
+                 S.PID)
         if ~strcmp(S.Status,'dead')
-            S.reportError('  A remote MATLAB session with that PID still exists.')
-            S.report('  Try .connect to attempt reconnecting\n')
+            S.report([' the last known Status of the slave was "%s".'...
+                     'Try .connect to attempt reconnecting\n'],S.Status)
             return
         else
             S.report('The remote process disappeared. Proceeding with .spawn.\n')

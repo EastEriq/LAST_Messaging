@@ -1,8 +1,8 @@
-classdef MessengerCommon < obs.LAST_Handle % a version of Messenger without callback
+classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and Listener
     
     properties
-        DestinationHost='localhost'; % Destination host. Named or IP. localhost valid
-        DestinationPort=50001; % Port on the destination host
+        DestinationHost='localhost'; % (default) Destination host. Named or IP. localhost valid.
+        DestinationPort=50001; % (default) port on the destination host
         LocalPort; % port on the local host. Can be same as DestinationPort if DestinationHost is not localhost
         EnablePortSharing='on'; % if 'on', different processses on the same localhost can receive on the same port
         Name % free text, useful for labelling the Messenger object
@@ -26,6 +26,8 @@ classdef MessengerCommon < obs.LAST_Handle % a version of Messenger without call
         % Host: the target host talked to. Can be an IP number or a
         %  resolved name. localhost as well as 127.0.0.1 are valid.
         %  0.0.0.0 is valid? (TBD)
+        %  Overridden when replying to messages received from other
+        %  hosts/ports
         % DestinationPort: the port used on the target host
         % LocalPort: (default []) must not be identical to
         %  DestinationPort, if host is localhost, i.e. if the messenger
@@ -194,18 +196,22 @@ classdef MessengerCommon < obs.LAST_Handle % a version of Messenger without call
                 Msng.reportError('could not get LocalPort. StreamResource not created?')
             end
         end
- 
-        function port=get.DestinationPort(Msng)
-            port=Msng.StreamResource.RemotePort;
-        end
 
-        function host=get.DestinationHost(Msng)
-            try
-                host=Msng.StreamResource.RemoteHost;
-            catch
-                host=Msng.DestinationHost;
-            end
-        end
+        % don't get these properties from StreamResource, whose desination
+        %  can be changed on the fly to reply to out-of-channel mesages
+        % Rather, the values stored in the property should be the fallback
+        %  ones for the preferred reply channel
+%         function port=get.DestinationPort(Msng)
+%             port=Msng.StreamResource.RemotePort;
+%         end
+% 
+%         function host=get.DestinationHost(Msng)
+%             try
+%                 host=Msng.StreamResource.RemoteHost;
+%             catch
+%                 host=Msng.DestinationHost;
+%             end
+%         end
         
         function state=get.EnablePortSharing(Msng)
             state=Msng.StreamResource.EnablePortSharing;

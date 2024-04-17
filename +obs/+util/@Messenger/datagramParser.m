@@ -119,9 +119,10 @@ function datagramParser(Msng,~,Data)
 
    try
        if M.RequestReply
-           % change Msng properties according to the origin of the message
-           Msng.DestinationHost=M.ReplyTo.Host;
-           Msng.DestinationPort=M.ReplyTo.Port;
+           % change Msng.StreamResource properties (*not* Msng default
+           %  destination) according to the origin of the message
+           Msng.StreamResource.RemoteHost=M.ReplyTo.Host;
+           Msng.StreamResource.RemotePort=M.ReplyTo.Port;
            % send back a message with output in .Content and empty .Command
            Msng.reply(jsonencode(out,'ConvertInfAndNaN',false),M.ProgressiveNumber);
            % note: found a corner case for which jsonencode is erroneously
