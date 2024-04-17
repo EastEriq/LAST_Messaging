@@ -13,6 +13,8 @@ function reply(Msng,content,nid)
     else
         R.ProgressiveNumber=Msng.MessagesSent;
     end
+    % this is not needed in a reply, but for completeness of tracking
+    R.ReplyTo.Port=Msng.StreamResource.LocalPort;
 
     % flatten it and dispatch it
     flat=jsonTruncate(Msng,R);

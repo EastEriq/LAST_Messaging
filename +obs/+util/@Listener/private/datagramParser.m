@@ -35,6 +35,11 @@ function goOn=datagramParser(Msng)
                 (M.ReceivedTimestamp-M.SentTimestamp)*86400000 +'msec\n')
         end
     catch
+        % diagnostic echo
+        if Msng.Verbose==2 % in truth so far I said that Verbose is a boolean
+            Msng.report("received '" + stream + " on " +...
+                datestr(now) +'\n')
+        end
         Msng.reportError('stream "%s" received is not a valid message!',stream)
         return
     end
@@ -70,7 +75,7 @@ function goOn=datagramParser(Msng)
                 end
             end
         end
-   catch ME
+    catch ME
         Msng.reportError('illegal messenger command "%s" received from %s:%d\n  %s',...
             M.Command, M.ReplyTo.Host, M.ReplyTo.Port, ME.message);
         % attempt to command .reportError back in the caller. Beware of
@@ -83,6 +88,10 @@ function goOn=datagramParser(Msng)
         R.ProgressiveNumber=M.ProgressiveNumber;
         R.RequestReply=false;
         R.EvalInListener=true;
+        % change Msng.StreamResource properties (*not* Msng default
+        %  destination) according to the origin of the message
+        Msng.StreamResource.RemoteHost=M.ReplyTo.Host;
+        Msng.StreamResource.RemotePort=M.ReplyTo.Port;
         Msng.send(R);
         % a simpler solution is to set out=ME, and return the ME structure
         %  as result. But the above .send bypasses sending the reply below?
@@ -102,15 +111,15 @@ function goOn=datagramParser(Msng)
             %       tries to read the public focuser properties despite
             %       not requested. Go figure which bug.
         end
-   catch ME
-       Msng.reportError('problem sending the json encoded result of command "%s"',...
+    catch ME
+        Msng.reportError('problem sending the json encoded result of command "%s"',...
             M.Command);
         if M.RequestReply
             % send back a message with Error! in .Content and empty .Command
-           Msng.reply(jsonencode(ME.message),M.ProgressiveNumber); % double quotes for json
-           % TODO a bit more sophystication, like adding a field .Status
-           %  to the message, or sending back a command .reportError
-           %  for the receiving messenger (might become cumbersome)
+            Msng.reply(jsonencode(ME.message),M.ProgressiveNumber); % double quotes for json
+            % TODO a bit more sophystication, like adding a field .Status
+            %  to the message, or sending back a command .reportError
+            %  for the receiving messenger (might become cumbersome)
         end
     end
 end
