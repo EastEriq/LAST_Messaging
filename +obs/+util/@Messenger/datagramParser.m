@@ -30,7 +30,7 @@ function datagramParser(Msng,~,Data)
     end
 
     if ~exist('Data','var')
-        Data=struct('Data',struct('AbsTime',now,'DatagramAddress','',DatagramPort,[]));
+        Data=struct('Data',struct('AbsTime',now,'DatagramAddress','','DatagramPort',[]));
     end
 
     % reconstruct the incoming Message
