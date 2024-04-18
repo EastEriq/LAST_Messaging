@@ -26,7 +26,7 @@ function reply(Msng,content,nid)
         % something nonsenical as 'MasterResponder.send' or 
         %  '{obs.util.Listener}' if running in a headless slave ???
         a=R.ReplyTo.Host;
-        fwrite(Msng.StreamResource,flat);
+        Msng.protectedWrite(flat)
     catch
         Msng.reportError('cannot write to .StreamResource [%s,%d]',...
             Msng.StreamResource.RemoteHost,Msng.StreamResource.RemotePort)

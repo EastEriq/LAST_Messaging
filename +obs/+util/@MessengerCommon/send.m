@@ -58,7 +58,7 @@ function nid=send(Msng,command,requestReply,evalInListener)
    % flatten it and dispatch it
    try
        flat=jsonTruncate(Msng,M);
-       fwrite(Msng.StreamResource,flat);
+       protectedWrite(Msng,flat)
        Msng.LastError='';
    catch
        Msng.reportError(['message datagram could not be written '...
