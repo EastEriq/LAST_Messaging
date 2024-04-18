@@ -44,18 +44,18 @@ function terminate(S,killlisteners)
             LR(LR==thisPID)=[];
         end
         if ~isempty(LM)
-            S.report('there are still processes listening on udp port %d\n',...
-                S.Messenger.DestinationPort)
+            S.report('there are still processes on %s listening on udp port %d\n',...
+                S.Messenger.DestinationHost,S.Messenger.DestinationPort)
         end
         if isa(S.Responder,'obs.util.MessengerCommon') && ~isempty(LR)
-            S.report('there are still processes listening on udp port %d\n',...
-                S.Responder.DestinationPort)
+            S.report('there are still processes on %s listening on udp port %d\n',...
+                S.Messenger.DestinationHost,S.Responder.DestinationPort)
         end
         L=unique([LM',LR']);
         if killlisteners && ~isempty(L)
             for p=L
                 S.PID=p;
-                S.report('killing process %d\n',p)
+                S.report('killing process %d on %s\n',p,S.Messenger.DestinationHost)
                 % it would be cleaner to use S.terminate, and to attempt a
                 %  clean exit, but I have issues with recursivity
                 S.kill 
