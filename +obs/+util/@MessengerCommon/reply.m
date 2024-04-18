@@ -23,8 +23,9 @@ function reply(Msng,content,nid)
         %  already interrogated by a monitor - maybe because the
         %  Streamresource is not yet set?
         % ???? access once to avoid that Msng.DestinationHost becomes
+        % something nonsenical as 'MasterResponder.send' or 
         %  '{obs.util.Listener}' if running in a headless slave ???
-        Msng.StreamResource.RemoteHost=R.ReplyTo.Host;
+        a=R.ReplyTo.Host;
         fwrite(Msng.StreamResource,flat);
     catch
         Msng.reportError('cannot write to .StreamResource [%s,%d]',...

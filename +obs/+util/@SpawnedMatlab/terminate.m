@@ -10,7 +10,7 @@ function terminate(S,killlisteners)
         killlisteners=true;
     end
 
-    if isa(S.Messenger,'obs.util.Messenger')
+    if isa(S.Messenger,'obs.util.MessengerCommon')
 
         % we check S.Status, because the logic is already in there.
         % If it is 'disconnected', we do not waste time in
@@ -47,7 +47,7 @@ function terminate(S,killlisteners)
             S.report('there are still processes listening on udp port %d\n',...
                 S.Messenger.DestinationPort)
         end
-        if isa(S.Responder,'obs.util.Messenger') && ~isempty(LR)
+        if isa(S.Responder,'obs.util.MessengerCommon') && ~isempty(LR)
             S.report('there are still processes listening on udp port %d\n',...
                 S.Responder.DestinationPort)
         end

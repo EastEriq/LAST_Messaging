@@ -1,13 +1,6 @@
 function success=connect(S)
 % attempts to connect to a spawned matlab session, already created by
 % .spawn, perhaps even by another matlab process
-% Connecting to a session spawned by another matlab process is in most cases
-%  a bad idea, because that session will have messengers pointing to its
-%  originator. An additional connection will break the assumed
-%  bidirectionality.
-% As a last resort, we could try to use the existing remote Responder (if is
-%  there) to force a disconnect from the original creator (TODO, if it is
-%  possible to work out all details)
 
     success=false;
 
@@ -23,7 +16,7 @@ function success=connect(S)
         S.ResponderRemotePort=9002;
     end
     
-    % create a messenger for talking to the spawned session
+    % (re)create a messenger for talking to the spawned session
     S.Messenger=obs.util.Messenger(S.Host,S.MessengerRemotePort,...
         S.MessengerLocalPort);
     if ~isempty(S.Id)
@@ -41,7 +34,7 @@ function success=connect(S)
     S.Messenger.Verbose=false;
     S.Messenger.StreamResource.Timeout=1;
     retries=40; i=0;
-    pause(1.5) % give time to the remote messenger to start working
+    % pause(1.5) % give time to the remote messenger to start working
     while ~S.Messenger.areYouThere && i<retries
         % retry enough times for the spawned session to be ready, tune it
         %  according to slowness of startup and timeout of the
@@ -72,7 +65,7 @@ function success=connect(S)
     % display a takeover message on the spawned session, and on the
     %  original spawner
     % TODO: see that this works also for a RemoteMessengerFlavor='listener'
-    if S.Messenger.query('exist(''MasterResponder'',''var'') && isa(MasterResponder,''obs.util.Messenger'')')
+    if S.Messenger.query('exist(''MasterResponder'',''var'') && isa(MasterResponder,''obs.util.MessengerCommon'')')
         msg=sprintf('PID %d on %s is now taking control of the spawned session',...
                 feature('getpid'),hostname);
         % can we also find out the .Id of the spawned session on the originator?

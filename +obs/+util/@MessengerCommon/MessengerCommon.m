@@ -34,6 +34,54 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
         %  channel is between processes running on the same computer
         % Name: free text name (default:
         %   'localhost:LocalPort->Host:DestinationPort')
+        
+        % create an udp resource right away, to avoid suspected race
+        %  conditions. Further resource parameters will be set after the
+        %  parsing. I speculate that problems may be due to messages sent in
+        %  too early, which trigger the receiver callback when host/port
+        %  are still undefined, causing weird assignments (possibly,
+        %  because of mistakes in reading some internal stack pointers?)
+        % i.e., I have seen errors reporting .StreamResource.RemoteHost =
+        %  'Astropack', or '{obs.util.Listener}', and the like, which make
+        %  no sense.
+        
+            % first clean up leftovers
+% this was below, I think there is no need for it, other udp resources with
+%  the same _destination_ should not be a problem
+%             try
+%                 % try to delete former udp objects with the same destination
+%                 delete(instrfind('RemoteHost',Msng.DestinationHost,'RemotePort',Msng.DestinationPort))
+%             catch
+%                 Msng.reportError('cannot delete udp object %s:%d',...
+%                     Msng.DestinationHost, Msng.DestinationPort);
+%             end
+            if exist('LocalPort','var') && ~isempty(LocalPort)
+                try
+                    % try to delete former udp objects with the same local port
+                    leftover=instrfind('LocalPort',LocalPort);
+                    if ~isempty(leftover)
+                        delete(leftover)
+                        Msng.report('deleting former udp objects with LocalPort %d\n',...
+                            LocalPort)
+                    end
+                catch
+                    Msng.reportError('cannot delete udp object with local port %d',...
+                        LocalPort);
+                end
+            else
+                LocalPort=[]; % this means, let the system assign at its wish, once connected
+            end
+            
+            % create a vanilla udp resource here. Parameters will be set by
+            % the class setters, which also set the .StreamResource
+            % parameters
+            Msng.StreamResource=udp;
+            Msng.StreamResource.InputBufferSize=4096;
+            Msng.StreamResource.OutputBufferSize=4096;
+
+            % set .StreamResource properties using class setters
+            Msng.StreamResource.EnablePortSharing='on';            
+            Msng.LocalPort=LocalPort;
             Msng.LocalHost=Msng.localHostName;
             if exist('Host','var')
                 Msng.DestinationHost=Host;
@@ -42,11 +90,6 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
                 Msng.DestinationPort=DestinationPort;
             else
                 Msng.DestinationPort=50001;
-            end
-            if exist('LocalPort','var')
-                Msng.LocalPort=LocalPort;
-            else
-                LocalPort=[]; % this means, let the system assign at random
             end
             if strcmp(resolvehost(Msng.DestinationHost,'address'),...
                             resolvehost('localhost','address'))
@@ -63,38 +106,7 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
                                   LocalPort,Msng.DestinationHost,...
                                   Msng.DestinationPort);       
             end
-            % now create the corresponding udp object: first clean up
-            %  leftovers,
-            try
-                % try to delete former udp objects with the same destination
-                delete(instrfind('RemoteHost',Msng.DestinationHost,'RemotePort',Msng.DestinationPort))
-            catch
-                Msng.reportError('cannot delete udp object %s:%d',...
-                    Msng.DestinationHost, Msng.DestinationPort);
-            end
-            try
-                % try to delete a former udp objects with the same local port
-                delete(instrfind('LocalPort',Msng.LocalPort))
-            catch
-                Msng.reportError('cannot delete udp object with local port %d',...
-                    Msng.LocalPort);
-            end
-            % then create
-            try
-                Msng.StreamResource=udp(Msng.DestinationHost,Msng.DestinationPort,...
-                    'EnablePortSharing','on',...
-                    'InputBufferSize',4096,...
-                    'OutputBufferSize',4096,...
-                    'Name',Msng.Name);
-                if ~isempty(LocalPort)
-                    Msng.StreamResource.LocalPort = LocalPort;
-                else
-                    % Msng.LocalPort will get a value only when connected
-                end
-            catch
-                Msng.reportError('cannot create udp object %s:%d',...
-                    Msng.DestinationHost,Msng.DestinationPort);
-            end
+
         end
         
         function delete(Msng)
@@ -111,10 +123,11 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
             %  destructor, which is odd.
             % (Maybe, that is an issue for Messengers, but not for Listeners?)
             try
-                Msng.disconnect;
-                delete(Msng.StreamResource); % doesn't delete it? I still see it in instrfind
+                % Msng.disconnect; % only Messenger has it, Listener not
+                delete(Msng.StreamResource); % doesn't delete it? I still see it in instrfind (?)
             catch
-                Msng.reportError('cannot delete Messenger udp resource')
+                Msng.reportError('cannot delete udp resource of %s %s',...
+                    class(Msng),Msng.Name)
                 % this cannot be reported in Msng.LastError, nor the error
                 %  can contain more identifying information, because the
                 %  object is not anymore
@@ -127,7 +140,13 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
         
         function set.LocalPort(Msng,port)
             try
-                Msng.StreamResource.LocalPort=port;
+                if isempty(port)
+                    % quirk of udp, which lets only scalar ports to be set
+                    % - but 0 translates in []
+                    Msng.StreamResource.LocalPort=0;
+                else
+                    Msng.StreamResource.LocalPort=port;
+                end
                 Msng.LocalPort=port;
             catch
                 Msng.reportError('could not change LocalPort. Maybe connection is open?')

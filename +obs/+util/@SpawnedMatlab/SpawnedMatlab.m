@@ -38,7 +38,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
         function S=SpawnedMatlab(id)
             % creates the object, assigning an Id if provided, and loads
             %  the configuration. The actual spawning is done by the method
-            %  .connect
+            %  .spawn, and communication is further established by .connect
             if ~exist('id','var')
                 id='';
             end
@@ -74,10 +74,10 @@ classdef SpawnedMatlab < obs.LAST_Handle
         % getters and setters: propagate properties to messengers
         function set.Host(S,host)
             S.Host=host;
-            if isa(S.Messenger,'obs.util.Messenger')
+            if isa(S.Messenger,'obs.util.MessengerCommon')
                 S.Messenger.DestinationHost=host;
             end
-            if isa(S.Responder,'obs.util.Messenger')
+            if isa(S.Responder,'obs.util.MessengerCommon')
                 S.Responder.DestinationHost=host;
             end
         end

@@ -9,7 +9,7 @@ function [Mpids,Rpids]=listeners(S)
         user=[S.RemoteUser '@'];
     end
     
-    if isa(S.Messenger,'obs.util.Messenger')
+    if isa(S.Messenger,'obs.util.MessengerCommon')
         [s,a]=system(sprintf('ssh %s %s%s "lsof -ti :%d"', ...
             S.SshOptions, user, S.Messenger.DestinationHost, S.Messenger.DestinationPort));
     else
@@ -30,7 +30,7 @@ function [Mpids,Rpids]=listeners(S)
     end
     
     if nargout>1 && (s==0 || s==1)
-        if isa(S.Responder,'obs.util.Messenger')
+        if isa(S.Responder,'obs.util.MessengerCommon')
             [~,a]=system(sprintf('ssh %s %s%s "lsof -ti :%d"', ...
                 S.SshOptions, user, S.Responder.DestinationHost, S.Responder.DestinationPort));
         else
