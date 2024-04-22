@@ -15,7 +15,12 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
     end
     
     properties (SetAccess=private, Hidden, Transient)
-        LocalHost char;
+        % this good to get the local hostname without racing on stdout
+        %  (unlike the private method. localHostName), but cannot get the IP.
+        %  Whithin LAST domain it may be ok, but if the IP is needed, the
+        %  property needs to be rewritten otherwise. OTOH, the name is
+        %  never expected to change within the lifetime of the Messenger
+        LocalHost char =char(java.net.InetAddress.getLocalHost.getHostName);
     end
 
    methods % creator and destructor (NonDestructor because of udp?)

@@ -14,18 +14,12 @@ function reply(Msng,content,nid)
         R.ProgressiveNumber=Msng.MessagesSent;
     end
     % this is not needed in a reply, but for completeness of tracking
+    R.ReplyTo.Host=Msng.LocalHost;
     R.ReplyTo.Port=Msng.StreamResource.LocalPort;
 
     % flatten it and dispatch it
     flat=jsonTruncate(Msng,R);
     try
-        % I've seen this failing on startup of a blind slave, which is
-        %  already interrogated by a monitor - maybe because the
-        %  Streamresource is not yet set?
-        % ???? access once to avoid that Msng.DestinationHost becomes
-        % something nonsenical as 'MasterResponder.send' or 
-        %  '{obs.util.Listener}' if running in a headless slave ???
-        a=R.ReplyTo.Host;
         Msng.protectedWrite(flat)
     catch
         Msng.reportError('cannot write to .StreamResource [%s,%d]',...

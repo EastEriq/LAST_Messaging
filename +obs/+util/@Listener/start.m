@@ -10,6 +10,8 @@ function start(L)
     try
         if strcmp(L.StreamResource.status,'closed')
             fopen(L.StreamResource);
+            flushinput(L.StreamResource);
+            L.report('flushed, destination host=%s\n',L.StreamResource.RemoteHost)
         end
         success = true;
     catch

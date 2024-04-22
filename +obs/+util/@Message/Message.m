@@ -19,6 +19,8 @@ classdef Message <handle
             %  Message. The second case is useful for casting back
             %  json-flattened transmitted messages to Message objects
             Msg.ReplyTo.Host=Msg.localHostName;
+            % beware - .localHostName reads stdout, and could be confused
+            %  by adiacent system() command
             if exist('command','var')
                 if ischar(command)
                     try
