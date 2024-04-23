@@ -52,11 +52,12 @@ function success=connect(S)
     % at this point, set the default MasterMessenger.DestinationPort
     %  in the slave (which was not known before the master side udp port was
     %  opened
-    S.Messenger.send(sprintf('MasterMessenger.DestinationPort=%d;',S.Messenger.LocalPort));
+    % S.Messenger.send(sprintf('MasterMessenger.DestinationPort=%d;',S.Messenger.LocalPort));
     
     S.PID=S.Messenger.query('feature(''getpid'')');
 
-    hostname=S.localHostName;
+    %hostname=S.localHostName;
+    hostname=S.LocalHost;
 
     % create a second "Responder" messenger, for dual communication
     %  without intermixing of messages. If we are here the

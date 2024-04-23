@@ -39,7 +39,6 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
         %  channel is between processes running on the same computer
         % Name: free text name (default:
         %   'localhost:LocalPort->Host:DestinationPort')
-         Msng.LocalHost=Msng.localHostName;
             if exist('Host','var')
                 Msng.DestinationHost=Host;
             end
@@ -103,6 +102,9 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
                 Msng.reportError('cannot create udp object %s:%d',...
                     Msng.DestinationHost,Msng.DestinationPort);
             end
+            % do this as last; maybe it mitigates the race on stdout,
+            %  which produces bogus readouts when redirecting stdout for logging 
+            Msng.LocalHost=Msng.localHostName;
         end
         
         function delete(Msng)

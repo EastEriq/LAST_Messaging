@@ -40,7 +40,7 @@ function nid=send(Msng,command,requestReply,evalInListener)
        M.ReplyTo.Host=Msng.LocalHost;
    end
    if isempty(M.ReplyTo.Port)
-       M.ReplyTo.Port=Msng.LocalPort;
+       M.ReplyTo.Port=Msng.StreamResource.LocalPort;
    end
    M.SentTimestamp=now;
    
