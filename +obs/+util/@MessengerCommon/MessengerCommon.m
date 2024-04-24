@@ -20,7 +20,7 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
         %  Whithin LAST domain it may be ok, but if the IP is needed, the
         %  property needs to be rewritten otherwise. OTOH, the name is
         %  never expected to change within the lifetime of the Messenger
-        LocalHost char =char(java.net.InetAddress.getLocalHost.getHostName);
+        LocalHost char =obs.util.localHostName;
     end
 
    methods % creator and destructor (NonDestructor because of udp?)
@@ -102,9 +102,6 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
                 Msng.reportError('cannot create udp object %s:%d',...
                     Msng.DestinationHost,Msng.DestinationPort);
             end
-            % do this as last; maybe it mitigates the race on stdout,
-            %  which produces bogus readouts when redirecting stdout for logging 
-            Msng.LocalHost=Msng.localHostName;
         end
         
         function delete(Msng)

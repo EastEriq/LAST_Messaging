@@ -30,7 +30,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
     end
     
     properties (SetAccess=private, Hidden, Transient)
-        LocalHost char;
+        LocalHost char = obs.util.localHostName;
     end
 
     methods
@@ -45,7 +45,6 @@ classdef SpawnedMatlab < obs.LAST_Handle
             if ~isempty(id)
                 S.Id=id;
             end
-            S.LocalHost=S.localHostName;
             % load configuration
             S.loadConfig(S.configFileName('create'))
         end

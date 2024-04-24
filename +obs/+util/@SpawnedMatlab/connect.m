@@ -56,7 +56,6 @@ function success=connect(S)
     
     S.PID=S.Messenger.query('feature(''getpid'')');
 
-    %hostname=S.localHostName;
     hostname=S.LocalHost;
 
     % create a second "Responder" messenger, for dual communication
