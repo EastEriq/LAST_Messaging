@@ -160,7 +160,7 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
                shellcommand= [matlabcommand '"' ...
                               messengercommand '"' loggingpipe];                       
        end
-       % not yet ok for 'desktop' and 'silent'
+       % not yet ok for 'desktop' and 'silent' (still?)
        success= (system(['cd ~; ' spawncommand shellcommand '&'])==0);
     else
         % Needs also that some mechanism of auto login is enabled.

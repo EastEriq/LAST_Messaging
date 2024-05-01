@@ -8,6 +8,10 @@ function localhostname=localHostName()
     % Using IP may be an option, but I'm not sure that udp ports from a
     % last machine to an IP address can be opened in matlab without some
     % proxy setting.
+    % idea to clear stdout from https://www.mathworks.com/support/bugreports/1400063
+    %  strange that this system call intercepts whatever is on left on stdout, even
+    %  if on another host.
+    [~,r]=system('');
     [~,sysoutput]=system('hostname -I');
     % cope with mutiple lines, produced by previous output on stdout,
     %  wronlgy redirected: take only the last line terminated by \n
