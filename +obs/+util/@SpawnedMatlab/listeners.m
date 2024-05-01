@@ -8,6 +8,10 @@ function [Mpids,Rpids]=listeners(S)
     else
         user=[S.RemoteUser '@'];
     end
+    % idea to clear stdout from https://www.mathworks.com/support/bugreports/1400063
+    %  strange that this system call intercepts whatever is on left on stdout, even
+    %  if on another host.
+    system('');
     
     if isa(S.Messenger,'obs.util.MessengerCommon')
         [s,a]=system(sprintf('ssh %s %s%s "lsof -ti :%d"', ...

@@ -51,13 +51,19 @@ classdef SpawnedMatlab < obs.LAST_Handle
 
         % destructor
         function delete(S)
-            % here we could consider to just .disconnect, if we wanted to
-            %  leave the slave available for reconnection from another
-            %  master. For the moment, let's cleanly finish both master and
-            %  slave
-            %S.terminate
-            S.report('just disconnecting, not terminating the remote session\n')
-            S.disconnect;
+            % here we could consider to either to .terminate the spawned
+            %  session or to .disconnect, it, leaving the slave available
+            %  for reconnection from another master. The former is the use
+            %  case of unitCS slaves, but the latter is more appropriate
+            %  for superunits (e.g. in the case we want to end the
+            %  superunit control session, and restart it somewhere else,
+            %  while we keep monitoring existing slaves).
+            % S.terminate
+            if ~strcmp(S.Status,'disconnected')
+                S.report('just disconnecting, not terminating the remote session %s\n',...
+                    S.Id)
+                S.disconnect;
+            end
             if ~isempty(S.Responder)
                 S.Responder.disconnect
                 delete(S.Responder)
