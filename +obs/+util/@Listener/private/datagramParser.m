@@ -76,23 +76,29 @@ function goOn=datagramParser(Msng)
             end
         end
     catch ME
-        Msng.reportError('illegal messenger command "%s" received from %s:%d\n  %s',...
-            M.Command, M.ReplyTo.Host, M.ReplyTo.Port, ME.message);
-        % attempt to command .reportError back in the caller. Beware of
-        %  possible side effects (for example, quotes in ME.message itself
-        %  can cause problems).
-        % Errors in this command may cause infinite loops
-        quotexpanded=replace(ME.message,'''','''''');
-        R=obs.util.Message(sprintf('Msng.reportError(''receiver reports: %s'')',...
-            quotexpanded));
-        R.ProgressiveNumber=M.ProgressiveNumber;
-        R.RequestReply=false;
-        R.EvalInListener=true;
-        % change Msng.StreamResource properties (*not* Msng default
-        %  destination) according to the origin of the message
-        Msng.StreamResource.RemoteHost=M.ReplyTo.Host;
-        Msng.StreamResource.RemotePort=M.ReplyTo.Port;
-        Msng.send(R);
+        try
+            Msng.reportError('illegal messenger command "%s" received from %s:%d\n  %s',...
+                M.Command, M.ReplyTo.Host, M.ReplyTo.Port, ME.message);
+            % attempt to command .reportError back in the caller. Beware of
+            %  possible side effects (for example, quotes in ME.message itself
+            %  can cause problems).
+            % Errors in this command may cause infinite loops
+            quotexpanded=replace(ME.message,'''','''''');
+            R=obs.util.Message(sprintf('Msng.reportError(''receiver reports: %s'')',...
+                quotexpanded));
+            R.ProgressiveNumber=M.ProgressiveNumber;
+            R.RequestReply=false;
+            R.EvalInListener=true;
+            % change Msng.StreamResource properties (*not* Msng default
+            %  destination) according to the origin of the message
+            Msng.StreamResource.RemoteHost=M.ReplyTo.Host;
+            Msng.StreamResource.RemotePort=M.ReplyTo.Port;
+            Msng.send(R);
+        catch
+            % with overflown buffer, I've seen reaching here with 
+            %  M.Command= a truncated json message, and empty M.Host
+            Msng.reportError('cannot report back to the sender what is wrong with the message received, giving up')
+        end
         % a simpler solution is to set out=ME, and return the ME structure
         %  as result. But the above .send bypasses sending the reply below?
         out=ME;
