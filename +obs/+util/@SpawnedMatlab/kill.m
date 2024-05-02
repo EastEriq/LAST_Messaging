@@ -2,6 +2,7 @@ function kill(S)
 % tries to kill forcefully a (non-responding perhaps) spawned Matlab
 %  session, by PID
 if ~isempty(S.PID)
+    [~,r]=system(''); % to flush previous stdout
     if strcmp(S.Host,'localhost')
         success=system(['kill -9 ' num2str(S.PID)]);
     else

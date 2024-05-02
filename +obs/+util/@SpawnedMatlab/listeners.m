@@ -28,7 +28,7 @@ function [Mpids,Rpids]=listeners(S)
             a='';
         end
     end
-    Mpids=str2num(a);
+    Mpids=sscanf(a,'%d');
     if s~=0 && s~=1 % return status can be 1 if lsof didn't find the port in use
         S.reportError('cannot execute commands on %s',S.Host)
     end
@@ -46,7 +46,7 @@ function [Mpids,Rpids]=listeners(S)
                 a='';
             end
         end
-        Rpids=str2num(a);
+        Rpids=sscanf(a,'%d');
     else
         Rpids=[];
     end
