@@ -9,6 +9,7 @@ function resp=query(Msng,command,evalInListener)
         evalInListener=false;
     end
 
+    resp=[];
     Msng.LastMessage=[];
     nid=Msng.send(command,Msng.StreamResource.Timeout,evalInListener);
 
@@ -70,5 +71,4 @@ function resp=query(Msng,command,evalInListener)
             Msng.reportError('%s timed out waiting for a reply to "%s"',...
                 Msng.Id, command)
         end
-        resp=[];
     end

@@ -29,7 +29,7 @@ function nid=send(Msng,command,requestReplyWithin,evalInListener)
     elseif isa(command,'obs.util.Message')
         M=command;
     else
-        Msng.reportError('%s: wrong type of message to send',Msng.Name)
+        Msng.reportError('%s: cannot send a "%s" as message',Msng.Name,class(command))
         nid=[];
         return
     end
@@ -45,15 +45,6 @@ function nid=send(Msng,command,requestReplyWithin,evalInListener)
    M.SentTimestamp=now;
    
    nid=M.ProgressiveNumber;
-   
-   % set the default destination on .StreamResource (could have been changed
-   %  by a previous off-channel message requesting a reply)
-   try
-       Msng.StreamResource.RemoteHost=Msng.DestinationHost;
-       Msng.StreamResource.RemotePort=Msng.DestinationPort;
-   catch
-       Msng.reportError('cannot change .StreamResource to the default destination')
-   end
    
    % flatten it and dispatch it
    try

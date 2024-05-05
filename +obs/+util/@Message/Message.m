@@ -1,4 +1,4 @@
-classdef Message <handle
+classdef Message < handle
     
     properties
         ReplyTo=struct('Host','','Port',[]);
@@ -33,7 +33,8 @@ classdef Message <handle
                         Msg.Command=command;
                     end
                 else
-                    Msg.Content='Error: can''t convert argument into command';
+                    Msg.Content=sprintf('can''t convert argument of type "%s" into message',...
+                        class(command));
                     %report that the type of the argument is wrong?
                 end
             end
