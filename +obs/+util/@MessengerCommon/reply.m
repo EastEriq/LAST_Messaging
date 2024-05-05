@@ -3,7 +3,7 @@ function reply(Msng,content,nid)
 %  or errors for illegal commands, or acknowledgements to AreYouThere
     R=obs.util.Message;
     R.SentTimestamp=now;
-    R.RequestReply=false;
+    R.RequestReply=-1;
     R.Content=content;
     Msng.MessagesSent=Msng.MessagesSent+1;
     % if provided, fill the number of the original request, to help sorting

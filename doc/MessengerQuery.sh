@@ -23,7 +23,7 @@ LOCALPORT=55555 # or better, find the port used by nc
 JSTRING=`echo '{"ReplyTo":{"Host":"localhost","Port":'$LOCALPORT'},'\
               '"SentTimestamp":'\$TIMESTAMP',"ReceivedTimestamp":[],'\
               '"ProgressiveNumber":2,"Command":"'$COMMAND'",'\
-              '"RequestReply":true,"Content":[],"EvalInListener":false}'`
+              '"RequestReplyWithin":10,"Content":[],"EvalInListener":false}'`
 
 #echo $JSTRING
 

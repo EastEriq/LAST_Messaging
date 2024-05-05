@@ -1,4 +1,4 @@
-function nid=send(Msng,command,requestReply,evalInListener)
+function nid=send(Msng,command,requestReplyWithin,evalInListener)
 % send a message through the Messenger channel
 % 
 % command: a string, containing a Matlab command, or
@@ -18,12 +18,12 @@ function nid=send(Msng,command,requestReply,evalInListener)
         M=obs.util.Message(command);
         M.ProgressiveNumber=Msng.MessagesSent;
         if ~exist('requestReply','var')
-            requestReply=false;
+            requestReplyWithin=-1;
         end
         if ~exist('evalInListener','var')
             evalInListener=false;
         end
-        M.RequestReply=requestReply;
+        M.RequestReplyWithin=requestReplyWithin;
         M.EvalInListener=evalInListener;
         % fallback, for queries it will cause a mismatch warning at the receiver
     elseif isa(command,'obs.util.Message')

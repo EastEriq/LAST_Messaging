@@ -5,9 +5,9 @@ classdef Message <handle
         SentTimestamp=[]; % time at which the message is sent, filled by the sending Messenger
         ReceivedTimestamp=[]; % time at which the message is received, filled by the listeniner
         ProgressiveNumber=[]; % ordinal number, set by the sending Messenger
-        Command='';
-        RequestReply=false;
-        Content={};
+        Command=''; % matlab command to be executed on reception of the message
+        RequestReplyWithin=-1; % seconds from SentTimestamp within which to send back a result
+        Content={}; % result of the command, or other free textual payload
         EvalInListener=false; % use true for the special case of retreiving properties of the receiving Messenger
     end
     

@@ -6,6 +6,6 @@ function resp=getMyAttention(Msng)
 %  elsewhere
 % We evaluate in the remote datagramParser, but the settings of the
 %  StreamResource are globally visible
-    send(Msng,['Msng.DestinationHost=''' Msng.LocalHost ''';'],false,true);
-    send(Msng,['Msng.DestinationPort=' num2str(Msng.LocalPort) ';'],false,true);
+    send(Msng,['Msng.DestinationHost=''' Msng.LocalHost ''';'],-1,true);
+    send(Msng,['Msng.DestinationPort=' num2str(Msng.LocalPort) ';'],-1,true);
     resp=Msng.areYouThere;

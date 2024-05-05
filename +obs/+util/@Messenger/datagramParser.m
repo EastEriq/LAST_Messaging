@@ -115,7 +115,7 @@ function datagramParser(Msng,~,Data)
             R=obs.util.Message(sprintf('Msng.reportError(''receiver reports: %s'')',...
                 quotexpanded));
             R.ProgressiveNumber=M.ProgressiveNumber;
-            R.RequestReply=false;
+            R.RequestReplyWithin=-1;
             R.EvalInListener=true;
             % change Msng.StreamResource properties (*not* Msng default
             %  destination) according to the origin of the message
@@ -133,7 +133,7 @@ function datagramParser(Msng,~,Data)
     end
 
     try
-        if M.RequestReply
+        if (now-M.SentTimestamp)*86400 < M.RequestReplyWithin
             % change Msng.StreamResource properties (*not* Msng default
             %  destination) according to the origin of the message
             Msng.StreamResource.RemoteHost=M.ReplyTo.Host;
@@ -148,7 +148,7 @@ function datagramParser(Msng,~,Data)
     catch ME
         Msng.reportError('problem sending the json encoded result of command "%s"',...
             M.Command);
-        if M.RequestReply
+        if (now-M.SentTimestamp)*86400 < M.RequestReplyWithin
             % send back a message with Error! in .Content and empty .Command
             Msng.reply(jsonencode(ME.message),M.ProgressiveNumber); % double quotes for json
             % TODO a bit more sophystication, like adding a field .Status
