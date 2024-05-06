@@ -12,6 +12,7 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
     properties (Hidden)
         StreamResource
         LastMessage % storing the last received message, to implement query responses
+        ExecutingCommand =''; % set by datagramParser and reset when done, to check if busy or other problems
     end
     
     properties (SetAccess=private, Hidden, Transient)

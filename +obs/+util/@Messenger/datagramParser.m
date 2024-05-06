@@ -89,6 +89,7 @@ function datagramParser(Msng,~,Data)
         out='';
         if ~isempty(M.Command)
             % this is an expensive way of dealing with either one output or none
+            Msng.ExecutingCommand=M.Command;
             try
                 if M.EvalInListener
                     out=eval(M.Command);
@@ -102,6 +103,7 @@ function datagramParser(Msng,~,Data)
                     evalin('base',M.Command);
                 end
             end
+            Msng.ExecutingCommand='';
         end
     catch ME
         try

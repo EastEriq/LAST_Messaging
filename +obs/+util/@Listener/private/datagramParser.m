@@ -61,6 +61,7 @@ function goOn=datagramParser(Msng)
             if strcmp(M.Command,'return')
                 goOn=false; % will be used as harness to break the loop
             end
+            Msng.ExecutingCommand=M.Command;
             try
                 if M.EvalInListener
                     out=eval(M.Command);
@@ -74,6 +75,7 @@ function goOn=datagramParser(Msng)
                     evalin('base',M.Command);
                 end
             end
+            Msng.ExecutingCommand='';
         end
     catch ME
         try
