@@ -22,7 +22,7 @@ classdef Message < handle
             % beware - .localHostName reads stdout, and could be confused
             %  by adiacent system() command
             if exist('command','var')
-                if ischar(command)
+                if ischar(command) || isstring(command)
                     try
                         m=jsondecode(command);
                         ff=fieldnames(m);

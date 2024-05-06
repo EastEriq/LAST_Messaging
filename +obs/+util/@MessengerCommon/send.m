@@ -14,7 +14,7 @@ function nid=send(Msng,command,requestReplyWithin,evalInListener)
     %  passed
     Msng.MessagesSent=Msng.MessagesSent+1;
 
-    if ischar(command)
+    if ischar(command) || isstring(command)
         M=obs.util.Message(command);
         M.ProgressiveNumber=Msng.MessagesSent;
         if ~exist('requestReplyWithin','var')
