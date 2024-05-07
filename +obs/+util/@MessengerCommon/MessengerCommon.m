@@ -21,7 +21,7 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
         %  Whithin LAST domain it may be ok, but if the IP is needed, the
         %  property needs to be rewritten otherwise. OTOH, the name is
         %  never expected to change within the lifetime of the Messenger
-        LocalHost char =obs.util.localHostName;
+        LocalHost char =obs.util.localHostIP;
     end
 
    methods % creator and destructor (NonDestructor because of udp?)
@@ -162,10 +162,14 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
         function set.DestinationHost(Msng,host)
             % seems that this can be changed even with udp opened
             try
+                host=resolvehost(host,'address');
+                if strcmp(host,'127.0.0.1')
+                    host=obs.util.localHostIP;
+                end
                 Msng.StreamResource.RemoteHost=host;
                 Msng.DestinationHost=host;
             catch
-                Msng.reportError('could not change DestinationHost. Maybe connection is open?')
+                Msng.reportError('could not change DestinationHost. Is host %s reachable?',host)
             end
         end
         

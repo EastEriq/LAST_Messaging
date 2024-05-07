@@ -28,7 +28,9 @@ function resp=query(Msng,command,evalInListener)
     % poll for an incoming reply within a timeout
     started=now;
     nbytes1=0;
-    while isempty(Msng.LastMessage) && (now-started)<Msng.StreamResource.Timeout/3600/24
+    replyReceived=false;
+    M=[];
+    while ~replyReceived && (now-started)<Msng.StreamResource.Timeout/3600/24
         if Msng.CallbackRespond && ~calledFromCallback
             % the listener callback fills the content automatically, when
             %  the stream is completed by a terminator
@@ -41,22 +43,38 @@ function resp=query(Msng,command,evalInListener)
             %  fills Msng.LastMessage. We can do that because the i/o
             %  StreamResource is accessible from any context....
             nbytes=Msng.StreamResource.BytesAvailable;
-            if nbytes==nbytes1 && nbytes>0
+            % rely on that messages burst in quickly. If the number of
+            %  bytes in buffer hasn't increased in the last 10ms, there
+            %  should be something to process. Fragile.
+            if nbytes==nbytes1 && nbytes>0 || nbytes==Msng.StreamResource.InputBufferSize
                 Msng.datagramParser()
             end
             nbytes1=nbytes;
         end
+        % note that instead of the reply to the query, a command
+        %  from somewhere else (i.e. a query from another monitoring
+        %  process) could have sneaked in. datagramParser will
+        %  treat that, but we are not yet done and must still wait
+        %  for our reply. What discriminates is: empty .Command,
+        %  .ReplyTo matching this Messenger (we don't contemplate
+        %  for the moment messages with a forwarding reply instruction)
+        %  and negative .RequestReplyWithin
+        M=Msng.LastMessage;
+        replyReceived = ~isempty(M) && ...
+                        isempty(M.Command) && ~isempty(M.Content) && ...
+                        strcmpi(M.ReplyTo.Host,Msng.DestinationHost) && ...
+                        M.ReplyTo.Port==Msng.DestinationPort;
         pause(0.01)
     end
     
-    if ~isempty(Msng.LastMessage)
-        if ~isempty(Msng.LastMessage.ProgressiveNumber) && ...
-            nid ~= Msng.LastMessage.ProgressiveNumber
+    if ~isempty(M)
+        if ~isempty(M.ProgressiveNumber) && ...
+            nid ~= M.ProgressiveNumber
             Msng.report('warning: reply #%d received for message #%d\n',...
-                Msng.LastMessage.ProgressiveNumber,nid)
+                M.ProgressiveNumber,nid)
         end
-        if ~isempty(Msng.LastMessage.Content)
-            resp=jsondecode(Msng.LastMessage.Content);
+        if ~isempty(M.Content)
+            resp=jsondecode(M.Content);
         else
             % typically the result of a query of a command with no return
             %  argument

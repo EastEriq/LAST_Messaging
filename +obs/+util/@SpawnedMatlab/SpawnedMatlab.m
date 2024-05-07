@@ -30,7 +30,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
     end
     
     properties (SetAccess=private, Hidden, Transient)
-        LocalHost char = obs.util.localHostName;
+        LocalHost char = obs.util.localHostIP;
     end
 
     methods

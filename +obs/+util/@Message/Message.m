@@ -18,8 +18,8 @@ classdef Message < handle
             %  command or a structure which maps to all fields of the
             %  Message. The second case is useful for casting back
             %  json-flattened transmitted messages to Message objects
-            % Msg.ReplyTo.Host=obs.util.localHostName;
-            % beware - .localHostName reads stdout, and could be confused
+            % Msg.ReplyTo.Host=obs.util.localHostIP;
+            % beware - .localHostIP reads stdout, and could be confused
             %  by adiacent system() command
             if exist('command','var')
                 if ischar(command) || isstring(command)
