@@ -10,9 +10,8 @@ function [Mpids,Rpids]=listeners(S)
     end
     % idea to clear stdout from https://www.mathworks.com/support/bugreports/1400063
     %  strange that this system call intercepts whatever is on left on stdout, even
-    %  if on another host.
-    [~,r]=system(sprintf('ssh %s %s%s " "', ...
-            S.SshOptions, user, S.Messenger.DestinationHost));
+    %  if on another host. This steals additional time, though.
+    [~,r]=system(sprintf('ssh %s %s%s " "', S.SshOptions, user, S.Host));
     
     % use lsof. Don't filter out MATLAB, in order to ascertain that
     %  processes different from it are not holding the port; but filter out
