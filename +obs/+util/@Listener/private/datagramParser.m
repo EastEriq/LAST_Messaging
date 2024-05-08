@@ -86,6 +86,7 @@ function goOn=datagramParser(Msng)
             %  can cause problems).
             % Errors in this command may cause infinite loops
             quotexpanded=replace(ME.message,'''','''''');
+            quotexpanded=replace(quotexpanded,newline,' ');
             R=obs.util.Message(sprintf('Msng.reportError(''%%s receiver reports: %s'',Msng.Id)',...
                 quotexpanded));
             R.ProgressiveNumber=M.ProgressiveNumber;
