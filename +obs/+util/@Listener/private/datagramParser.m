@@ -81,6 +81,7 @@ function goOn=datagramParser(Msng)
         try
             Msng.reportError('illegal messenger command "%s" received from %s:%d\n  %s',...
                 M.Command, M.ReplyTo.Host, M.ReplyTo.Port, ME.message);
+            Msng.ExecutingCommand='';
             % attempt to command .reportError back in the caller. Beware of
             %  possible side effects (for example, quotes in ME.message itself
             %  can cause problems).
