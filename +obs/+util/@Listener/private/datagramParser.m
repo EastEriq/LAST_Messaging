@@ -57,11 +57,14 @@ function goOn=datagramParser(Msng)
     try
         out='';
         if ~isempty(M.Command)
-            % this is an expensive way of dealing with either one output or none
             if strcmp(M.Command,'return')
                 goOn=false; % will be used as harness to break the loop
             end
             Msng.ExecutingCommand=M.Command;
+            % this is an expensive way of dealing with either one output or none
+            % Note: it may lead to a *double* evaluation of M.Command,
+            %       if the command would supply a return argument, but
+            %       gives an error
             try
                 if M.EvalInListener
                     out=eval(M.Command);

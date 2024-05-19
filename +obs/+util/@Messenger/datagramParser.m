@@ -89,6 +89,9 @@ function datagramParser(Msng,~,Data)
         out='';
         if ~isempty(M.Command)
             % this is an expensive way of dealing with either one output or none
+            % Note: it may lead to a *double* evaluation of M.Command,
+            %       if the command would supply a return argument, but
+            %       gives an error
             Msng.ExecutingCommand=M.Command;
             try
                 if M.EvalInListener
