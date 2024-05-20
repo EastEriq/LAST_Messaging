@@ -1,8 +1,10 @@
 function executeCommandAndReply(Msng,M)
-% execute the command received by the messenger, trapping eventual errors,
-%  and issue the result in a reply, if the incoming message asked for it.
+% execute the command received by the Messenger inside M.Command, trapping
+%  eventual errors, and issue the result in a reply, if the incoming message
+%  asked for it.
 % Common code called by both Messenger.datagramParser and
-%  Listener.datagramParser
+%  Listener.datagramParser. Even though it is an ancillary, I think it
+%  cannot be private, to be seen by the descendents.
 
     % Store the message received, so that the process can access it.
     %  E.g. to check for a reply to a query
@@ -33,17 +35,24 @@ function executeCommandAndReply(Msng,M)
                         out=evalin('base',M.Command);
                     end
                 catch OutputError
-                % If the above gave a specific error, evaluate without
-                %  asking for a result. we need to be specific, otherwise a
+                % If the above gave a lhs assignment error, evaluate without
+                %  asking for a result. We need to be specific, otherwise a
                 %  a command which does provide an output but errors during
-                %  its execution would be executed twice
-                    if strcmp(OutputError.identifier,'MATLAB:maxlhs') && ...
-                            isempty(OutputError.stack)
+                %  its execution would be executed twice.
+                % TODO, make sure that this traps all the relevant cases
+                %  correctly
+                % OutputError.identifier
+                    thisStack=dbstack;
+                    if any(strcmp(OutputError.identifier,...
+                       {'MATLAB:maxlhs','MATLAB:m_invalid_lhs_of_assignment'})) && ...
+                            strcmp(OutputError.stack(1).name, thisStack(1).name)
                         if M.EvalInListener
                             eval(M.Command);
                         else
                             evalin('base',M.Command);
                         end
+                    else
+                        throw(OutputError)
                     end
                 end
             else

@@ -74,7 +74,7 @@ function datagramParser(Msng,~,Data)
     if isempty(M.ReplyTo.Port) && nargin==3
         M.ReplyTo.Port = Data.Data.DatagramPort;
     end
-
-    executeCommandAndReply(Msng,M)
+ 
+    Msng.executeCommandAndReply(M)
 
 end

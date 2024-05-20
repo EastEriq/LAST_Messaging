@@ -49,6 +49,6 @@ function goOn=datagramParser(Msng)
         return
     end
     
-    executeCommandAndReply(Msng,M)
+    Msng.executeCommandAndReply(M)
     
 end
