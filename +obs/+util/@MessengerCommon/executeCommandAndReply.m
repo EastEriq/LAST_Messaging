@@ -47,9 +47,9 @@ function executeCommandAndReply(Msng,M)
                        {'MATLAB:maxlhs','MATLAB:m_invalid_lhs_of_assignment'})) && ...
                             strcmp(OutputError.stack(1).name, thisStack(1).name)
                         if M.EvalInListener
-                            eval(M.Command);
+                            eval(M.Command+";");
                         else
-                            evalin('base',M.Command);
+                            evalin('base',M.Command+";");
                         end
                     else
                         throw(OutputError)
@@ -57,10 +57,13 @@ function executeCommandAndReply(Msng,M)
                 end
             else
                 % no reply asked for sure
+                % NB: eval(); and evalin(); type out their eventual results
+                %   to "ans", hence we squelch the output appending ";" to
+                %   the command
                 if M.EvalInListener
-                    eval(M.Command);
+                    eval(M.Command+";");
                 else
-                    evalin('base',M.Command);
+                    evalin('base',M.Command+";");
                 end
             end
             Msng.ExecutingCommand='';
