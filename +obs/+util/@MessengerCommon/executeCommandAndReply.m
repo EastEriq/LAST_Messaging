@@ -20,8 +20,9 @@ function executeCommandAndReply(Msng,M)
         out='';
         if ~isempty(M.Command)
             Msng.ExecutingCommand=M.Command;
-            if M.RequestReplyWithin>=0 && ...
-                (now-M.SentTimestamp)*86400 < M.RequestReplyWithin
+            tooLateToReply = M.RequestReplyWithin>=0 && ...
+                (now-M.SentTimestamp)*86400 > M.RequestReplyWithin;
+            if M.RequestReplyWithin>=0 && ~tooLateToReply
             % check whether it is possible to get one output from the
             %  command only if a reply is required (and the time is not
             %  expired, with a harness for desynchronized clocks)
@@ -47,9 +48,9 @@ function executeCommandAndReply(Msng,M)
                        {'MATLAB:maxlhs','MATLAB:m_invalid_lhs_of_assignment'})) && ...
                             strcmp(OutputError.stack(1).name, thisStack(1).name)
                         if M.EvalInListener
-                            eval(M.Command+";");
+                            eval(M.Command);
                         else
-                            evalin('base',M.Command+";");
+                            evalin('base',M.Command);
                         end
                     else
                         throw(OutputError)
@@ -57,13 +58,19 @@ function executeCommandAndReply(Msng,M)
                 end
             else
                 % no reply asked for sure
-                % NB: eval(); and evalin(); type out their eventual results
-                %   to "ans", hence we squelch the output appending ";" to
-                %   the command
+                command=M.Command;
+                if tooLateToReply
+                % only for queries (M.RequestReplyWithin>0): 
+                % eval(); and evalin(); type out their eventual results
+                %  to "ans". Only in this case we squelch the output
+                %  appending ";" to the command
+                    Msng.reportDebug('executing command "%s" omitting late reply\n',command)
+                    command=command+";";
+                end
                 if M.EvalInListener
-                    eval(M.Command+";");
+                    eval(command);
                 else
-                    evalin('base',M.Command+";");
+                    evalin('base',command);
                 end
             end
             Msng.ExecutingCommand='';
