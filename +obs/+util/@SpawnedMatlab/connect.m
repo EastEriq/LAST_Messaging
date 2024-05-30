@@ -54,7 +54,7 @@ function success=connect(S)
     %  opened
     % S.Messenger.send(sprintf('MasterMessenger.DestinationPort=%d;',S.Messenger.LocalPort));
     
-    S.PID=S.Messenger.query('feature(''getpid'')');
+    S.PID=S.Messenger.query("feature('getpid')");
 
     hostname=S.LocalHost;
 
@@ -65,14 +65,14 @@ function success=connect(S)
     % display a takeover message on the spawned session, and on the
     %  original spawner
     % TODO: see that this works also for a RemoteMessengerFlavor='listener'
-    if S.Messenger.query('exist(''MasterResponder'',''var'') && isa(MasterResponder,''obs.util.MessengerCommon'')')
+    if S.Messenger.query("exist('MasterResponder','var') && isa(MasterResponder,'obs.util.MessengerCommon')")
         msg=sprintf('PID %d on %s is now taking control of the spawned session',...
                 feature('getpid'),hostname);
         % can we also find out the .Id of the spawned session on the originator?
         S.Messenger.send(sprintf('disp(''%s'')',msg));
         % use the old remote responder, to send the same takeover message
-        % to the original controller
-        S.Messenger.send(sprintf('MasterResponder.send(''disp(''''%s'''')'')',...
+        % to the original controller. Does it always work?
+        S.Messenger.send(sprintf("MasterResponder.send('disp(''%s'')');",...
              msg));
         % it would be nice to include in the message also the name or the Id
         %  of the spawned session that is being taken over, but how do we
