@@ -22,7 +22,7 @@ function resp=query(Msng,command,evalInListener)
     %  makes sense, but probably we're never really in this case, even in
     %  roundtrips. Why?
     ds=dbstack;
-    callchain=ds.name;
+    callchain={ds.name};
     calledFromCallback = any(contains(callchain,{'timercb','instrcb'}));
     
     % poll for an incoming reply within a timeout
