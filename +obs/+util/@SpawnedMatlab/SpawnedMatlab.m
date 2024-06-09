@@ -39,6 +39,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
             % creates the object, assigning an Id if provided, and loads
             %  the configuration. The actual spawning is done by the method
             %  .spawn, and communication is further established by .connect
+            S.GitVersion=obs.util.tools.getgitversion(mfilename('fullpath'));
             if ~exist('id','var')
                 id='';
             end

@@ -40,6 +40,7 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
         %  channel is between processes running on the same computer
         % Name: free text name (default:
         %   'localhost:LocalPort->Host:DestinationPort')
+            Msng.GitVersion=obs.util.tools.getgitversion(mfilename('fullpath'));
             if exist('Host','var')
                 Msng.DestinationHost=Host;
             end
