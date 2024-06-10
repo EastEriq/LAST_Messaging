@@ -12,6 +12,7 @@ function start(L)
             fopen(L.StreamResource);
             flushinput(L.StreamResource);
             L.report('flushed, destination host=%s\n',L.StreamResource.RemoteHost)
+            L.ExecutingCommand='';
         end
         success = true;
     catch
