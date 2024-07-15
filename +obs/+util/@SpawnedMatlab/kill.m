@@ -1,6 +1,15 @@
 function kill(S)
 % tries to kill forcefully a (non-responding perhaps) spawned Matlab
-%  session, by PID
+%  session, by PID if known, if not by looking for listeners
+if isempty(S.PID)
+    % try to recover PID from listeners
+    [Mpids,Rpids]=S.listeners;
+    PID=unique([Mpids,Rpids]);
+    if ~isempty(PID)
+        % if there is more than one zombie, relate to the first
+        S.PID=PID(1);
+    end
+end
 if ~isempty(S.PID)
     [~,r]=system(''); % to flush previous stdout
     if strcmp(S.Host,'localhost')
