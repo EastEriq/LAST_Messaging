@@ -82,9 +82,9 @@ classdef SpawnedMatlab < obs.LAST_Handle
 
         % getters and setters: propagate properties to messengers
         function set.Host(SV,host)
-            S.Host=host;
             for i=1:numel(SV)
                 S=SV(i);
+                S.Host=host;
                 if isa(S.Messenger,'obs.util.MessengerCommon')
                     S.Messenger.DestinationHost=host;
                 end
