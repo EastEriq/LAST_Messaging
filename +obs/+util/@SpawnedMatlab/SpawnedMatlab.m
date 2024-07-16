@@ -51,7 +51,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
         end
 
         % destructor
-        function delete(S)
+        function delete(SV)
             % here we could consider to either to .terminate the spawned
             %  session or to .disconnect, it, leaving the slave available
             %  for reconnection from another master. The former is the use
@@ -60,31 +60,37 @@ classdef SpawnedMatlab < obs.LAST_Handle
             %  superunit control session, and restart it somewhere else,
             %  while we keep monitoring existing slaves).
             % S.terminate
-            if ~strcmp(S.Status,'disconnected')
-                S.report('just disconnecting, not terminating the remote session %s\n',...
-                    S.Id)
-                S.disconnect;
-            end
-            if ~isempty(S.Responder)
-                S.Responder.disconnect
-                delete(S.Responder)
-            end
-            if ~isempty(S.Messenger)
-                % conditional, to work also for incomplete objects
-                S.disconnect
-                S.Messenger.disconnect
-                delete(S.Messenger)
+            for i=1:numel(SV)
+                S=SV(i);
+                if ~strcmp(S.Status,'disconnected')
+                    S.report('just disconnecting, not terminating the remote session %s\n',...
+                        S.Id)
+                    S.disconnect;
+                end
+                if ~isempty(S.Responder)
+                    S.Responder.disconnect
+                    delete(S.Responder)
+                end
+                if ~isempty(S.Messenger)
+                    % conditional, to work also for incomplete objects
+                    S.disconnect
+                    S.Messenger.disconnect
+                    delete(S.Messenger)
+                end
             end
         end
 
         % getters and setters: propagate properties to messengers
-        function set.Host(S,host)
+        function set.Host(SV,host)
             S.Host=host;
-            if isa(S.Messenger,'obs.util.MessengerCommon')
-                S.Messenger.DestinationHost=host;
-            end
-            if isa(S.Responder,'obs.util.MessengerCommon')
-                S.Responder.DestinationHost=host;
+            for i=1:numel(SV)
+                S=SV(i);
+                if isa(S.Messenger,'obs.util.MessengerCommon')
+                    S.Messenger.DestinationHost=host;
+                end
+                if isa(S.Responder,'obs.util.MessengerCommon')
+                    S.Responder.DestinationHost=host;
+                end
             end
         end
 
@@ -121,27 +127,33 @@ classdef SpawnedMatlab < obs.LAST_Handle
             end
         end
 
-        function set.Logging(S,tof)
-            if ~isempty(S.PID)
-                S.reportError('Logging state changes are effecive only before connecting!')
-                return
+        function set.Logging(SV,tof)
+            for i=1:numel(SV)
+                S=SV(i);
+                if ~isempty(S.PID)
+                    S.reportError('Logging state changes are effecive only before connecting!')
+                    return
+                end
+                S.Logging=tof;
             end
-            S.Logging=tof;
         end
 
-        function set.LoggingDir(S,path)
-            if ~isempty(S.PID)
-                S.reportError('Logging directory changes are effecive only before connecting!')
-                return
-            end
-            if ~isfolder(path)
-                try
-                    mkdir(path);
-                catch
-                    S.reportError('logging directory nonexistent and impossible to be created')
+        function set.LoggingDir(SV,path)
+            for i=1:numel(SV)
+                S=SV(i);
+                if ~isempty(S.PID)
+                    S.reportError('Logging directory changes are effecive only before connecting!')
+                    return
                 end
+                if ~isfolder(path)
+                    try
+                        mkdir(path);
+                    catch
+                        S.reportError('logging directory nonexistent and impossible to be created')
+                    end
+                end
+                S.LoggingDir=path;
             end
-            S.LoggingDir=path;
         end
 
     end
