@@ -30,6 +30,9 @@ function kill(SV)
             if success==0
                 S.PID=[];
                 S.Status='disconnected';
+                S.LastError='';
+            else
+                S.reportError('cannot send kill command on %s',S.Host)
             end
         else
             S.report('empty process ID, no idea about what to kill\n')
