@@ -93,12 +93,7 @@ function success=connect(SV)
             S.Responder.Id='spawn.Responder';
         end
         
-        if ~S.Responder.connect % can fail if the local port is busy
-            S.reportError('remote Responder not answering. Consider terminating and respawning')
-        else
-            S.ResponderLocalPort=S.Responder.LocalPort; % in cause empty ->auto
-            success(i)=true;
-        end
+        S.Responder.connect; % can fail if the local port is busy
         
         % use the Messenger to create the remote Responder head. That may exist
         %  already in the remote session, but we recreate it anyway
@@ -107,5 +102,12 @@ function success=connect(SV)
             S.ResponderLocalPort,S.ResponderRemotePort);
         S.Messenger.query(respondercommand);
         
+        if ~S.Responder.areYouThere
+            S.reportError('remote Responder not answering. Consider terminating and respawning')
+        else
+            S.ResponderLocalPort=S.Responder.LocalPort; % in case empty ->auto
+            success(i)=true;
+        end
+
     end
 end
