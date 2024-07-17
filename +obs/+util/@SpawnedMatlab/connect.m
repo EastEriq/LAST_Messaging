@@ -35,7 +35,7 @@ function success=connect(SV)
         t=S.Messenger.StreamResource.Timeout;
         S.Messenger.Verbose=false;
         S.Messenger.StreamResource.Timeout=1;
-        retries=40; j=0;
+        retries=60; j=0;
         % pause(1.5) % give time to the remote messenger to start working
         while ~S.Messenger.areYouThere && j<retries
             % retry enough times for the spawned session to be ready, tune it
