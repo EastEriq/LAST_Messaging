@@ -58,7 +58,13 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
         S.ResponderRemotePort=9002;
     end
 
+    S.LastError='';
     [Mpids,Rpids]=S.listeners;
+    if ~isempty(S.LastError)
+        % if listeners fails, the computer is almost certainly offline
+        return
+    end
+
     if ~isempty(Mpids) || ~isempty(Rpids)
         p=unique([Mpids(:)',Rpids(:)']);
         S.reportError('destination ports already used by PID %s on %s',...
@@ -161,7 +167,7 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
                               messengercommand '"' loggingpipe];                       
        end
        % not yet ok for 'desktop' and 'silent' (still?)
-       success= (system(['cd ~; ' spawncommand shellcommand '&'])==0);
+       success= (system(['cd ~; ' spawncommand shellcommand '& disown -ar'])==0);
     else
         % Needs also that some mechanism of auto login is enabled.
         % cfr: http://rebol.com/docs/ssh-auto-login.html
@@ -197,7 +203,7 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
              [~,result] = system([sshcommand ' "' spawncommand ...
                           matlabcommand ...
                           '\"' messengercommand '\"' ...
-                          loggingpipe '";' ...
+                          loggingpipe '& disown -arh" >/dev/null & disown -arh;' ...
                           ' echo $?']);
         end
         % parse result here. There are extra \n, and there could
