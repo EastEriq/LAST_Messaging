@@ -64,7 +64,10 @@ function executeCommandAndReply(Msng,M)
                 % only for queries (M.RequestReplyWithin>0): 
                 % eval(); and evalin(); type out their eventual results
                 %  to "ans". Only in this case we squelch the output
-                %  appending ";" to the command
+                %  appending ";" to the command. This helps, except for the
+                %  corner cases described in
+                %  https://github.com/EastEriq/LAST_Messaging/issues/7,
+                %  https://github.com/PolishookDavid/LAST_OCS/issues/26
                     Msng.reportDebug('executing command "%s" omitting late reply\n',command)
                     command=command+";";
                 end
