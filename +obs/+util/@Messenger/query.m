@@ -82,6 +82,9 @@ function resp=query(Msng,command,evalInListener)
         end
         Msng.LastError='';
     else
+        if isa(command,'obs.util.Message')
+            command=command.Command;
+        end
         if isempty(Msng.Id)
             Msng.reportError('%s timed out waiting for a reply to "%s"',...
                 Msng.Name, command)
