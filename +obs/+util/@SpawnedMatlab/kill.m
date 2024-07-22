@@ -15,7 +15,7 @@ function kill(SV)
         if ~isempty(S.PID)
             [~,r]=system(''); % to flush previous stdout
             if strcmp(S.Host,'localhost')
-                success=system(['kill -9 ' num2str(S.PID)]);
+                [success,r]=system(['kill -9 ' num2str(S.PID)]);
             else
                 % try with ssh
                 if ~isempty(S.RemoteUser)
@@ -32,7 +32,12 @@ function kill(SV)
                 S.Status='disconnected';
                 S.LastError='';
             else
-                S.reportError('cannot send kill command on %s',S.Host)
+                if ~contains(r,'No such process') % fragile
+                    % we don't want to set LastError if the process
+                    %  vanished by itself, we do if we can't execute
+                    %  commands
+                    S.reportError('cannot send kill command on %s',S.Host)
+                end
             end
         else
             S.report('empty process ID, no idea about what to kill\n')
