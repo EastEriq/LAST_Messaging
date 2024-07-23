@@ -54,7 +54,7 @@ function success=connect(SV)
         % at this point, set the default MasterMessenger.DestinationPort
         %  in the slave (which was not known before the master side udp port was
         %  opened
-        % S.Messenger.send(sprintf('MasterMessenger.DestinationPort=%d;',S.Messenger.LocalPort));
+        S.Messenger.send(sprintf('MasterMessenger.DestinationPort=%d;',S.Messenger.LocalPort));
         
         S.PID=S.Messenger.query("feature('getpid')");
         
