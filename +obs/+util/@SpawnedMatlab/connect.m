@@ -97,9 +97,12 @@ function success=connect(SV)
         
         % use the Messenger to create the remote Responder head. That may exist
         %  already in the remote session, but we recreate it anyway
+        % note that at this point we have alreay connected the local head,
+        %  hence we LocalPort is assigned even if [] was given, and we can
+        %  pass that as the default for the remote responder
         respondercommand = sprintf(['MasterResponder=obs.util.Messenger(''%s'',[%d],%d);'...
             'MasterResponder.connect;'],hostname,...
-            S.ResponderLocalPort,S.ResponderRemotePort);
+            S.Responder.LocalPort,S.ResponderRemotePort);
         S.Messenger.query(respondercommand);
         
         if ~S.Responder.areYouThere
