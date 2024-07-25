@@ -5,7 +5,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
     properties
         Host  = 'localhost'; % the host on which to spawn a new matlab session
         RemoteUser=''; % username for connecting to a remote host. Empty if same user
-        RemoteTerminal char {mustBeMember(RemoteTerminal,{'xterm','gnome-terminal','desktop','none'})} = 'xterm';
+        RemoteTerminal char {mustBeMember(RemoteTerminal,{'xterm','gnome-terminal','desktop','silentx','none'})} = 'xterm';
         RemoteMessengerFlavor char {mustBeMember(RemoteMessengerFlavor,{'messenger','listener'})} = 'messenger';
         Logging logical = false; % create stdout and stderr log files. Must be set BEFORE connect
         LoggingDir char ; % directory where to log. Must be set BEFORE connect

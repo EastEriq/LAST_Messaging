@@ -100,7 +100,8 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
             S.MessengerLocalPort,S.MessengerRemotePort);
     end
 
-    if (isempty(S.RemoteTerminal) || strcmp(S.RemoteTerminal,'none')) ...
+    if (isempty(S.RemoteTerminal) || ...
+        strcmp(S.RemoteTerminal,'none') || strcmp(S.RemoteTerminal,'silentx')) ...
         && ~strcmpi(S.RemoteMessengerFlavor,'listener')
         % if there is no window, put matlab in an infinite loop,
         %  otherwise it just quits after messengercommand is
@@ -114,6 +115,8 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
     % use xterm or gnome-terminal depending on which is
     %  installed sanely
     spawncommand='export LC_CTYPE=en_US.UTF-8;';
+    matlabcommand = 'nohup matlab -nosplash -nodesktop -r ';
+    % 'none' could use '-nodisplay', but without X it is automatically set
     switch S.RemoteTerminal
         case 'xterm'
             xtitle=sprintf('-T "matlab_%s"',S.Id);
@@ -121,7 +124,6 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
             spawncommand=[spawncommand ' xterm ' xtitle ,...
                 ' -sb -bg aliceblue -fg black -cr blue', ...
                 ' -e '];
-            matlabcommand = 'matlab -nosplash -nodesktop -r ';
         case 'gnome-terminal'
             spawncommand=[spawncommand ' gnome-terminal -- bash -c '];
             if ~strcmp(S.Host,'localhost')
@@ -130,18 +132,15 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
                 % but is still very slow. why?
                 spawncommand=['export $(dbus-launch);' spawncommand];
             end
-            matlabcommand = 'matlab -nosplash -nodesktop -r ';
         case 'desktop'
             % only local spawns should be allowed to come up
             %  in full java glory
             % stdout will go to the window and not to the pipe
             %  anyway, the eventual logfile will remain empty
-            matlabcommand = 'matlab -nosplash -desktop -r ';
         otherwise
             % 'none', or '', or anything else: silent, but will exit
             %  as soon as the command passed finishes its execution.
             % Easiest workaround, command an infinite loop, as done above
-            matlabcommand = 'matlab -nosplash -nodesktop -r ';
     end
 
     % we could check at this point: if there is already a corresponding Spawn
@@ -167,7 +166,7 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
                               messengercommand '"' loggingpipe];                       
        end
        % not yet ok for 'desktop' and 'silent' (still?)
-       success= (system(['cd ~; ' spawncommand shellcommand '& disown -ar'])==0);
+       success= (system(['cd ~; ' spawncommand shellcommand '&'])==0);
     else
         % Needs also that some mechanism of auto login is enabled.
         % cfr: http://rebol.com/docs/ssh-auto-login.html
@@ -178,11 +177,22 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
             user=[S.RemoteUser '@'];
         end
 
-        % we use ssh -X. This allows opening locally the remote
-        %  matlab windows, though it may be slow (expecially
-        %  graphics in software OpenGL)
+        if strcmpi(S.RemoteTerminal,'none')
+            % we don't forward X. This allows us to close the calling
+            %  process, log out of the spawning machine, and the spawned
+            %  process can survive
+            sshflags='-f';
+        else
+            % we use ssh -X. This allows opening locally the remote
+            %  matlab windows, though it may be slow (expecially
+            %  graphics in software OpenGL). Use this if 'silentx'
+            %  if we don't want to see the matlab shell, but we still
+            %  want to see plots. The spawned processes will die when
+            % the calling shell or X session ends.
+            sshflags='-fX';
+        end
 
-       sshcommand=['ssh ' S.SshOptions ' -fCX ' user S.Host];
+        sshcommand=['ssh ' S.SshOptions ' ' sshflags ' ' user S.Host];
         % we try to capture the result code, to trap potential
         %  problems -- e.g. unreachable host, wrong user
 
@@ -203,7 +213,7 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
              [~,result] = system([sshcommand ' "' spawncommand ...
                           matlabcommand ...
                           '\"' messengercommand '\"' ...
-                          loggingpipe '& disown -arh" >/dev/null & disown -arh;' ...
+                          loggingpipe '";' ...
                           ' echo $?']);
         end
         % parse result here. There are extra \n, and there could
