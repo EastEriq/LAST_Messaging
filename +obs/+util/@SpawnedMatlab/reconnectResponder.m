@@ -1,4 +1,4 @@
-function success=reconnectResponder(S)
+function success=reconnectResponder(SV)
 % tentative saveass function if the master of an already created spawned
 % session is defective or blocked, but the responder might be available
 
