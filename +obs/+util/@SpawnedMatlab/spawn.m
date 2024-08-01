@@ -115,7 +115,7 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
     % use xterm or gnome-terminal depending on which is
     %  installed sanely
     spawncommand='export LC_CTYPE=en_US.UTF-8;';
-    matlabcommand = 'nohup matlab -nosplash -nodesktop -r ';
+    matlabcommand = 'matlab -nosplash -nodesktop -r ';
     % 'none' could use '-nodisplay', but without X it is automatically set
     switch S.RemoteTerminal
         case 'xterm'
@@ -137,7 +137,9 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
             %  in full java glory
             % stdout will go to the window and not to the pipe
             %  anyway, the eventual logfile will remain empty
+            matlabcommand = 'matlab -nosplash -desktop -r ';
         otherwise
+            matlabcommand = ['nohup ' matlabcommand];
             % 'none', or '', or anything else: silent, but will exit
             %  as soon as the command passed finishes its execution.
             % Easiest workaround, command an infinite loop, as done above
