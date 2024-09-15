@@ -64,6 +64,7 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
 
             if exist('Name','var')
                 Msng.Name=Name;
+                Msng.Id=Name;
             else
                 Msng.Name=sprintf('%s:%d->%s:%d',resolvehost('localhost','name'),...
                                   LocalPort,Msng.DestinationHost,...
@@ -239,6 +240,12 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
         
         function name=get.Name(Msng)
             name=Msng.StreamResource.Name;
+        end
+        
+        % setter for pushing to PVstore
+        function set.ExecutingCommand(Msng,command)
+            Msng.ExecutingCommand=command;
+            Msng.pushPVvalue(command)
         end
         
     end
