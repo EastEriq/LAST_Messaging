@@ -81,15 +81,38 @@ function executeCommandAndReply(Msng,M)
         end
     catch CommandError
         try
-            Msng.reportError('illegal messenger command "%s" received from %s:%d\n  %s',...
-                M.Command, M.ReplyTo.Host, M.ReplyTo.Port, CommandError.message);
             Msng.ExecutingCommand='';
+            % construct a textual stack for reporting
+            CommandStack=CommandError.stack;
+            % the last 4 levels for messengers are anyway known, like
+            %    line 77 in executeCommandAndReply
+            %    line 78 in datagramParser
+            %    line 17 in @(varargin)Msng.datagramParser(varargin{:})
+            %    line 42 in instrcb
+            % and for listeners, the last 3:
+            %    line 77 in executeCommandAndReply 
+            %    line 52 in datagramParser
+            %    line 32 in start
+            if strcmpi(CommandStack(end).name,'instrcb')
+                knownLevels=4;
+            else
+                knownLevels=3;
+            end
+            TextStack='';
+            for k=1:length(CommandStack)-knownLevels
+                TextStack=[TextStack,...
+                    sprintf('\n at line %d of %s',...
+                           CommandStack(k).line,CommandStack(k).name)];
+            end
+            Msng.reportError('illegal messenger command "%s" received from %s:%d\n  %s',...
+                M.Command, M.ReplyTo.Host, M.ReplyTo.Port, ...
+                [CommandError.message,TextStack]);
             % attempt to command .reportError back in the caller. Beware of
             %  possible side effects (for example, quotes in ME.message itself
             %  can cause problems).
-            % Errors in this command may cause infinite loops
-            quotexpanded=replace(CommandError.message,'''','''''');
-            quotexpanded=replace(quotexpanded,newline,' ');
+            % Errors in this command may cause infinite message loops!
+            quotexpanded=replace([CommandError.message,TextStack],'''','''''');
+            quotexpanded=replace(quotexpanded,newline,', ');
             R=obs.util.Message(sprintf('Msng.reportError(''%%s receiver reports: %s'',Msng.Id)',...
                 quotexpanded));
             R.ProgressiveNumber=M.ProgressiveNumber;
