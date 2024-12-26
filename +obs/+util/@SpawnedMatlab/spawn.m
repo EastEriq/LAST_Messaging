@@ -123,6 +123,8 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
     spawncommand='export LC_CTYPE=en_US.UTF-8;';
     matlabcommand = 'matlab -nosplash -nodesktop -r ';
     % 'none' could use '-nodisplay', but without X it is automatically set
+    % NB: -nodesktop has side consequences on communication times! See
+    %  https://github.com/EastEriq/LAST_XerxesMount/issues/13
     switch S.RemoteTerminal
         case 'xterm'
             xtitle=sprintf('-T "matlab_%s"',S.Id);
@@ -145,7 +147,7 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
             %  anyway, the eventual logfile will remain empty
             matlabcommand = 'matlab -nosplash -desktop -r ';
         otherwise
-            matlabcommand = ['nohup ' matlabcommand];
+            matlabcommand = 'nohup matlab -nodisplay -r ';
             % 'none', or '', or anything else: silent, but will exit
             %  as soon as the command passed finishes its execution.
             % Easiest workaround, command an infinite loop, as done above
