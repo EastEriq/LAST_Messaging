@@ -79,10 +79,22 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
         % Tested ok with bash, but beware that it could behave
         %  differently in other shells
         tstart=datestr(now,'yyyymmddHHMMSS');
-        loggingpipe = sprintf(['> >(nohup tee -a %s_stdout.log) 2> ',...
+        if strcmpi(S.RemoteTerminal,'none')
+            % just pipe
+            loggingpipe = sprintf(' 1> %s_stdout.log 2> %s_stderr.log',...
+                               fullfile(S.LoggingDir,sprintf('matlab_%s_%s',S.Id,tstart)), ...
+                               fullfile(S.LoggingDir,sprintf('matlab_%s_%s',S.Id,tstart)) );
+        else
+            % we both want to see the output and capture it in files. Use
+            %  tee. However the stdout tee terminates if the spawner
+            %  terminates, despite nohup. This may not be an issue because
+            %  the matlab process inside the terminal, or whit an X channel
+            %  is terminated as well
+            loggingpipe = sprintf(['> >(nohup tee -a %s_stdout.log) 2> ',...
                                '>(nohup tee -a %s_stderr.log >&2)'],...
                                fullfile(S.LoggingDir,sprintf('matlab_%s_%s',S.Id,tstart)), ...
                                fullfile(S.LoggingDir,sprintf('matlab_%s_%s',S.Id,tstart)) );
+        end
     else
         loggingpipe = '';
     end
