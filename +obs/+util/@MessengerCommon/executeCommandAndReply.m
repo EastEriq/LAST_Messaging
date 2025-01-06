@@ -20,7 +20,7 @@ function executeCommandAndReply(Msng,M)
         out='';
         if ~isempty(M.Command)
             Msng.ExecutingCommand=M.Command;
-            Msng.report('received: "%s"\n',M.Command) % too verbose for trivial queries?
+            Msng.report('Command issued: "%s"\n',M.Command) % too verbose for trivial queries?
             tooLateToReply = M.RequestReplyWithin>=0 && ...
                 (now-M.SentTimestamp)*86400 > M.RequestReplyWithin;
             if M.RequestReplyWithin>=0 && ~tooLateToReply
