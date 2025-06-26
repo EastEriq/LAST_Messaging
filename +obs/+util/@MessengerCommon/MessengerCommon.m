@@ -211,6 +211,7 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
         %  would be a good idea, but we have a problem at creation, because
         %  StreamResource is created last. try-catch those cases
         function port=get.LocalPort(Msng)
+            port=[];
             try
                 port=Msng.StreamResource.LocalPort;
             catch
