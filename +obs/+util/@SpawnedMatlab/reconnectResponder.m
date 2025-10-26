@@ -10,9 +10,22 @@ function success=reconnectResponder(SV)
         if isempty(S.Host)
             S.Host='localhost';
         end
-        
+
+        if isempty(S.MessengerRemotePort)
+            S.MessengerRemotePort=8002;
+        end
+
         if isempty(S.ResponderRemotePort)
             S.ResponderRemotePort=9002;
+        end
+
+        % (re)create a messenger for talking to the spawned session
+        S.Messenger=obs.util.Messenger(S.Host,S.MessengerRemotePort,...
+            S.MessengerLocalPort);
+        if ~isempty(S.Id)
+            S.Messenger.Id=[S.Id '.Messenger'];
+        else
+            S.Messenger.Id='spawn.Messenger';
         end
         
         % local Responder head
