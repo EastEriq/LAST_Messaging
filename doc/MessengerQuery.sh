@@ -36,5 +36,5 @@ JSTRING=`echo '{"ReplyTo":{"Host":"'$LOCALHOST'","Port":'$LOCALPORT'},'\
 
 #echo $JSTRING
 
-echo -n $JSTRING | nc -uC -W 1 -q 1 -w $TIMEOUT -p $LOCALPORT $HOST $PORT | jq
+echo -n $JSTRING | nc -uC -W 1 -q 1 -w $TIMEOUT -p $LOCALPORT $HOST $PORT | jq .Content
 echo
