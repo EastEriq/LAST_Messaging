@@ -18,8 +18,12 @@ HOST=$1
 PORT=$2
 COMMAND=$3
 # date %s gives seconds from 1/1/1970, Matlab timestamp is days since 0/1/0000
-TIMESTAMP=`bc <<<  "scale=9; $(( $(date +%s) ))/86400.0+719529"`
+# UTC
+#TIMESTAMP=`bc <<<  "scale=9; $(( $(date +%s) ))/86400.0+719529"`
+# tentative accounting for integer timezone
+TIMESTAMP=`bc <<<  "scale=9; ($(( $(date +%s) )) + $(( $(date +%:::z) ))*3600.)/86400.0+719529"`
 LOCALHOST=`hostname -s`
+#LOCALHOST="localhost"
 # Listeners cannot determine the port they receive from, hence fix it so that
 #  it can be written in the message
 LOCALPORT=55555
