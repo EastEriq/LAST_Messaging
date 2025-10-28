@@ -40,6 +40,7 @@ JSTRING=`echo '{"ReplyTo":{"Host":"'$LOCALHOST'","Port":'$LOCALPORT'},'\
 
 #echo $JSTRING
 
+# jq -r | jq to unescape the encoded json answer
 echo -n $JSTRING | nc -uC -W 1 -q 1 -w $TIMEOUT -p $LOCALPORT $HOST $PORT \
-  | jq .Content
-echo
+  | jq -r .Content | jq
+
