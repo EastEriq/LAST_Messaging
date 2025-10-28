@@ -24,10 +24,14 @@ COMMAND=$3
 TIMESTAMP=`bc <<<  "scale=9; ($(( $(date +%s) )) + $(( $(date +%:::z) ))*3600.)/86400.0+719529"`
 LOCALHOST=`hostname -s`
 #LOCALHOST="localhost"
+# note: for some reason the reply does not work on CFENRICO-PC01,
+#  not even with hostname -i, or localhost. I think
+#  that it has to do with ip-name resolution somewhere between the
+#  matlab Messenger and nc. It works on last computers, though.
 # Listeners cannot determine the port they receive from, hence fix it so that
 #  it can be written in the message
 LOCALPORT=55555
-TIMEOUT=2
+TIMEOUT=5
 
 JSTRING=`echo '{"ReplyTo":{"Host":"'$LOCALHOST'","Port":'$LOCALPORT'},'\
               '"SentTimestamp":'$TIMESTAMP',"ReceivedTimestamp":[],'\
@@ -36,5 +40,6 @@ JSTRING=`echo '{"ReplyTo":{"Host":"'$LOCALHOST'","Port":'$LOCALPORT'},'\
 
 #echo $JSTRING
 
-echo -n $JSTRING | nc -uC -W 1 -q 1 -w $TIMEOUT -p $LOCALPORT $HOST $PORT | jq .Content
+echo -n $JSTRING | nc -uC -W 1 -q 1 -w $TIMEOUT -p $LOCALPORT $HOST $PORT \
+  | jq .Content
 echo
