@@ -240,7 +240,12 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
         end
         
         function name=get.Name(Msng)
-            name=Msng.StreamResource.Name;
+            try
+                name=Msng.StreamResource.Name;
+            catch
+                name='';
+                Msng.reportError('cannot get StreamResource''s name')
+            end
         end
         
         % setter for pushing to PVstore
