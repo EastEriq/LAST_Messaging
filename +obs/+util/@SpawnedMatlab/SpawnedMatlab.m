@@ -73,7 +73,7 @@ classdef SpawnedMatlab < obs.LAST_Handle
                 end
                 if ~isempty(S.Messenger)
                     % conditional, to work also for incomplete objects
-                    S.disconnect
+                    % S.disconnect % why again here?
                     S.Messenger.disconnect
                     delete(S.Messenger)
                 end
