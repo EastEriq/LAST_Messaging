@@ -121,8 +121,12 @@ classdef MessengerCommon < obs.LAST_Handle % common superclass of Messenger and 
             %  destructor, which is odd.
             % (Maybe, that is an issue for Messengers, but not for Listeners?)
             try
-                Msng.disconnect;
-                delete(Msng.StreamResource); % doesn't delete it? I still see it in instrfind
+                % Listeners don't have to be disconnected
+                if isa(Msng,'obs.util.Messenger')
+                    Msng.disconnect;
+                end
+                delete(Msng.StreamResource);
+                % doesn't delete it for Messengers? I still see it in instrfind
             catch
                 Msng.reportError('cannot delete udp resource of %s %s',...
                     class(Msng),Msng.Name)
