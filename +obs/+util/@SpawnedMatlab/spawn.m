@@ -80,8 +80,8 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
         %  differently in other shells
         tstart=datestr(now,'yyyymmddHHMMSS');
         if strcmpi(S.RemoteTerminal,'none')
-            % just pipe
-            loggingpipe = sprintf(' 1> %s_stdout.log 2> %s_stderr.log',...
+            % just pipe (and make without stdin)
+            loggingpipe = sprintf(' < /dev/null 1> %s_stdout.log 2> %s_stderr.log',...
                                fullfile(S.LoggingDir,sprintf('matlab_%s_%s',S.Id,tstart)), ...
                                fullfile(S.LoggingDir,sprintf('matlab_%s_%s',S.Id,tstart)) );
         else
@@ -203,7 +203,10 @@ function spawn(S,host,messengerlocalport,messengerremoteport,...
             % we don't forward X. This allows us to close the calling
             %  process, log out of the spawning machine, and the spawned
             %  process can survive
-            sshflags='-f';
+            % we also disable pseudo-terminal allocation. I speculate
+            %  that this avoids strange network delays of matlab, which
+            %  probably prioritizes checking stdin over network traffic
+            sshflags='-fT';
         else
             % we use ssh -X. This allows opening locally the remote
             %  matlab windows, though it may be slow (expecially
