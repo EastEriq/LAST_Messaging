@@ -1,18 +1,34 @@
 #!/bin/bash
-[ "$1" = "-h" -o "$1" = "--help" -o $# -ne 3 ] && echo "
-# proof of concept communication wth a matlab Messenger using shell commands
+if [[ "$1" == "-s" && $# -ne 4 ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]] \
+  || [[ "$1" != "-s" && $# -ne 3 ]]; then
 
-# Instructions: in matlab: create a Messenger object
-#
-#   M=obs.util.Messenger('',[],40000)
-#   M.connect
+cat <<ENDHELP
+proof of concept communication wth a matlab Messenger using shell commands
 
-# In the shell: MessengerQuery.sh <host> <port> <command>
-#
-# Examples: ./MessengerQuery.sh localhost 40000 \"atand\(1\)\"
-#           ./MessengerQuery.sh localhost 40000 \"a=3.4\"
-#           ./MessengerQuery.sh localhost 40000 \"a/3\"
-" && exit
+  Instructions: in matlab: create a Messenger object
+
+    M=obs.util.Messenger('',[],40000)
+    M.connect
+
+  In the shell: MessengerQuery.sh [-s] <host> <port> <command>
+
+  The option -s means send only, don't wait for an answer
+
+  Examples: ./MessengerQuery.sh localhost 40000 "atand(1)"
+            ./MessengerQuery.sh localhost 40000 "a=3.4"
+            ./MessengerQuery.sh localhost 40000 "a/3"
+ENDHELP
+  exit
+fi
+
+
+if [[ $1 == '-s' ]]; then
+  sendonly=true;
+  TIMEOUT=-1
+  shift
+else
+  TIMEOUT=5
+fi
 
 HOST=$1
 PORT=$2
@@ -31,7 +47,6 @@ LOCALHOST=`hostname -s`
 # Listeners cannot determine the port they receive from, hence fix it so that
 #  it can be written in the message
 LOCALPORT=55555
-TIMEOUT=5
 
 JSTRING=`echo '{"ReplyTo":{"Host":"'$LOCALHOST'","Port":'$LOCALPORT'},'\
               '"SentTimestamp":'$TIMESTAMP',"ReceivedTimestamp":[],'\
@@ -40,7 +55,11 @@ JSTRING=`echo '{"ReplyTo":{"Host":"'$LOCALHOST'","Port":'$LOCALPORT'},'\
 
 #echo $JSTRING
 
+if [[ $sendonly ]]; then
+  echo -n $JSTRING | nc -uC -q 0 -w 0 -p $LOCALPORT $HOST $PORT
+else
 # jq -r | jq to unescape the encoded json answer
-echo -n $JSTRING | nc -uC -W 1 -q 1 -w $TIMEOUT -p $LOCALPORT $HOST $PORT \
-  | jq -r .Content | jq
+  echo -n $JSTRING | nc -uC -W 1 -q 1 -w $TIMEOUT -p $LOCALPORT $HOST $PORT \
+    | jq -r .Content | jq
+fi
 
